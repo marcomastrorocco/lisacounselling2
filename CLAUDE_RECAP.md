@@ -1,84 +1,57 @@
-# Lisa Chiarini Counselling Website — Claude Review Recap
+# Claude review recap — Addenda 01 and 02
 
-## Review objective
+Date: 19 July 2026  
+Preview: https://lisa-counselling.vercel.app/
 
-Vet the current production website for copy accuracy, professional claims, counselling-sector appropriateness, accessibility, privacy, technical correctness, and consistency with the approved Lisa Chiarini brief.
+## Scope executed
 
-Production: https://lisa-counselling.vercel.app/
+- Applied Addendum 02 as the final authority for credential wording.
+- Retained Addendum 01 requirements for imagery, the temporary portrait treatment, self-hosting, responsive behaviour and pre-launch indexing protection.
+- Made no changes to Move-and-Groove 2 or any other project.
 
-Repository: https://github.com/marcomastrorocco/LisaCounselling
+## Credential and content changes
 
-## Changes made in this revision
+- The single credential wording used sitewide is **ACA Registered Counsellor**.
+- Updated the Home metadata, trust bar and About teaser.
+- Rebuilt the About page with the above-the-fold credential band: **Master of Counselling · ACA Registered Counsellor**.
+- Replaced the About body with the supplied hook, professional background, bicultural-practice and closing copy.
+- Rendered only the two confirmed qualification items. The unconfirmed university, graduation year and further training are retained as HTML comments and are not presented to visitors.
+- Preserved the full approved My Approach lists, including all seven practice foundations and all seven possible therapeutic techniques.
 
-### Credential wording
+## Imagery and performance
 
-- Removed every instance of the previous ACA membership-level wording.
-- Replaced it with the owner-approved wording “M.A.C.A registered Counsellor”.
-- Updated the homepage trust bar, homepage About teaser, homepage meta description, About page opening copy, and About page meta description.
-- A case-insensitive repository search should return no remaining numeric ACA membership-level credential references.
+- Added exactly four decorative photographic placements: Home texture band, How I Can Help foliage band, My Approach room-detail inset, and Contact texture inset.
+- Added no photograph to the Domestic & Family Violence page.
+- Added restrained sage portrait placeholders to the Home teaser and About header. These use the existing leaf mark until Lisa's approved portrait is supplied.
+- Every photograph is self-hosted, lazy-loaded, has explicit dimensions and uses an optimised WebP with a JPEG fallback.
+- Each production image file is below 150 KB. Source and licence details are recorded in `assets/img/CREDITS.md`.
 
-### My Approach page
+## Privacy and pre-launch protection
 
-- Replaced the opening paragraph with the owner-supplied wording about each person bringing a unique story, strengths, and way of understanding the world.
-- Added a structured “My practice is grounded in” list containing:
-  - Trauma-informed care
-  - Person-centred therapy
-  - Attachment-informed practice
-  - Strengths-based and recovery-oriented practice
-  - Culturally responsive care
-  - Evidence-based therapeutic approaches
-  - Somatically informed practice
-- Added a structured “Depending on your needs, therapy may incorporate” list containing:
-  - Cognitive Behavioural Therapy (CBT)
-  - Acceptance and Commitment Therapy (ACT)
-  - Solution-Focused Therapy (SFBT)
-  - Motivational Interviewing (MI)
-  - Mindfulness and grounding strategies
-  - Psychoeducation
-  - Attachment-informed interventions
-- Added the owner-supplied closing principle: counselling should be collaborative, respectful, and tailored to what is most meaningful for the client.
-- Retained the existing “What to expect” and practical-details content below the revised approach material.
-- Added semantic unordered lists and visible list markers for accessibility and scanning.
+- Added the explicit `noindex, nofollow` guard to all seven page heads.
+- The guard is clearly marked for removal at launch.
+- The contact page still contains no personal telephone number.
 
-## Existing site state Claude should vet
+## Responsive implementation
 
-- Seven static routes: Home, About, How I Can Help, My Approach, Domestic & Family Violence, Contact, and Privacy.
-- Shared sticky navigation and two-band footer.
-- Crisis-support information appears on every page.
-- Main content is centred; long lists remain left-aligned for readability.
-- The approved July 2026 logo is used on the homepage.
-- Lisa’s personal phone number has been removed from visible content and structured metadata.
-- The Contact page includes an enquiry form and a warning not to submit urgent or highly sensitive health information.
+- Photograph bands change from 21:9 on larger screens to 16:9 on smaller screens.
+- About, portrait, approach and contact layouts collapse to a single column on narrow screens.
+- The About portrait moves above the text on mobile; the approach image also stacks above its copy.
+- Existing responsive navigation, cards, buttons, form fields and footer behaviour remain in place.
 
-## Unresolved launch placeholders
+## Items Lisa must confirm before launch
 
-These are intentionally unresolved and must be supplied before a public launch using the final domain:
+1. University name and Master of Counselling graduation year.
+2. Exact wording for any additional qualifications or professional training, copied from certificates; otherwise omit those lines.
+3. Approved professional portrait.
+4. Practice email, Halaxy booking URL, contact-form endpoint, ABN and final privacy-policy text.
+5. Remove the seven pre-launch indexing guards and allow indexing only after all content is approved.
 
-- `{{HALAXY_URL}}`
-- `{{PRACTICE_EMAIL}}`
-- `{{CONTACT_FORM_ENDPOINT}}`
-- `{{PRIVACY_COPY}}`
-- `{{ABN}}`
+## Recommended Claude checks
 
-The contact form is not operational until `{{CONTACT_FORM_ENDPOINT}}` is replaced with an approved form-processing endpoint. Claude should not treat the visible form as proof that enquiries are currently delivered.
-
-## Requested Claude vetting checklist
-
-1. Confirm “M.A.C.A registered Counsellor” is the exact preferred professional styling and punctuation for Lisa’s membership status.
-2. Check whether “Solution-Focused Therapy (SFBT)” should instead be styled “Solution-Focused Brief Therapy (SFBT)” based on Lisa’s qualification and intended claim.
-3. Check every modality and professional claim against Lisa’s actual training, competence, registration, and insurance scope.
-4. Review domestic and family violence content for trauma-informed, non-blaming, non-promissory language and appropriate crisis boundaries.
-5. Confirm the site does not imply emergency monitoring, guaranteed outcomes, or medical/psychological registration beyond Lisa’s actual credentials.
-6. Check heading hierarchy, link labels, keyboard use, form labels, contrast, and mobile reading order against WCAG 2.1 AA.
-7. Review the contact-form data flow before activation, including consent language, retention, spam handling, and Australian Privacy Principles obligations.
-8. Require legally reviewed final privacy copy before launch; do not approve the current placeholders as a privacy policy.
-9. Verify final Halaxy, email, ABN, canonical-domain, and Open Graph values before launch.
-10. Search for Windows-1252/UTF-8 mojibake and corrupted smart punctuation before approving deployment.
-
-## Files changed in this revision
-
-- `index.html`
-- `about/index.html`
-- `approach/index.html`
-- `styles.css`
-- `CLAUDE_RECAP.md`
+1. Verify the About page against Addendum 02 line by line.
+2. Confirm that credential wording is consistent across visible copy and metadata.
+3. Confirm there are exactly four photographic content placements and none on the specialist family-violence page.
+4. Confirm the unresolved qualification details are not visible to visitors.
+5. Review responsive layouts at approximately 390 px, 768 px and 1440 px.
+6. Confirm all temporary must-supply placeholders are resolved before public launch.
