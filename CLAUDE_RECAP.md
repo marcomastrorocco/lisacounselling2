@@ -20,9 +20,10 @@ Preview: https://lisa-counselling.vercel.app/
 
 ## Imagery and performance
 
-- Added exactly four decorative photographic placements: Home texture band, How I Can Help foliage band, My Approach room-detail inset, and Contact texture inset.
+- Added exactly four decorative photographic placements from one warm, tactile surface family: the approved Home texture, an airy wall-light band, a close textile crop for My Approach, and a quieter crop of the same textile for Contact.
 - Added no photograph to the Domestic & Family Violence page.
 - Added restrained sage portrait placeholders to the Home teaser and About header. These use the existing leaf mark until Lisa's approved portrait is supplied.
+- Addendum 03 removed all foliage, interiors, objects and people from the content imagery.
 - Every photograph is self-hosted, lazy-loaded, has explicit dimensions and uses an optimised WebP with a JPEG fallback.
 - Each production image file is below 150 KB. Source and licence details are recorded in `assets/img/CREDITS.md`.
 
