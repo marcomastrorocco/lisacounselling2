@@ -29,3 +29,14 @@
 .contact-summary .contact-card{display:flex;flex-direction:column;justify-content:center}
 .media-inset.contact{aspect-ratio:1;min-height:100%}
 @media(max-width:768px){.about-teaser,.about-header,.expect-layout,.contact-summary{grid-template-columns:1fr}.about-header .portrait-frame{grid-row:1}.about-teaser .portrait-frame{grid-row:1;width:180px;justify-self:center}.media-band{width:min(calc(100% - 1.5rem),var(--wide-max))}.media-band.home,.media-band.help{aspect-ratio:16/9}.media-inset.approach{grid-row:1}.contact-summary{gap:1rem}}
+.hero-identity{width:min(100%,980px);margin:0 auto clamp(2.5rem,6vw,4rem)}
+.hero-mark{display:block;width:min(760px,92%);height:auto;margin:0 auto clamp(1.25rem,3vw,2rem)}
+.hero-brand-name{margin:0;white-space:nowrap;text-transform:uppercase;font:600 clamp(2.2rem,6vw,4.6rem)/.95 var(--font-display);letter-spacing:clamp(.08em,1.3vw,.22em);color:var(--pine);transform:translateX(.07em)}
+.hero-service{display:flex;align-items:center;gap:clamp(1rem,3vw,2rem);margin:clamp(1rem,2.5vw,1.6rem) auto .8rem;color:var(--plum);font:600 clamp(1.6rem,4vw,3rem)/1 var(--font-display);letter-spacing:clamp(.12em,1.2vw,.25em);text-transform:uppercase}
+.hero-service:before,.hero-service:after{content:'';height:2px;flex:1;background:var(--plum);opacity:.8}.hero-service span{white-space:nowrap}
+.hero-values{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0;color:var(--sage);font-weight:600;font-size:clamp(.72rem,1.55vw,1.05rem);letter-spacing:clamp(.08em,.7vw,.2em);text-transform:uppercase}
+.hero-values span+span:before{content:'•';color:var(--plum);margin-right:clamp(.75rem,2vw,2rem)}
+.hero-leaf{display:flex;align-items:center;gap:1rem;color:var(--sage);font:2rem/1 var(--font-display);margin:.85rem auto .45rem}.hero-leaf:before,.hero-leaf:after{content:'';height:1px;flex:1;background:var(--plum);opacity:.65}
+.hero-identity .tagline{color:var(--sage);font-weight:600;letter-spacing:.02em;margin:0}
+.home-hero .hero-copy{padding-top:clamp(2.5rem,6vw,4.5rem);border-top:1px solid rgba(163,164,135,.5)}
+@media(max-width:600px){.hero-brand-name{font-size:clamp(1.8rem,9.2vw,2.6rem);letter-spacing:.06em}.hero-service{font-size:clamp(1.35rem,7vw,2rem);letter-spacing:.1em;gap:.7rem}.hero-values{flex-direction:column;gap:.2rem}.hero-values span+span:before{content:'•';margin-right:.6rem}.hero-leaf{margin-top:1rem}.hero-mark{width:100%}}
