@@ -1,0 +1,1 @@
+import{t as e}from"../../static/rolldown-runtime-D9-fqq9M.js";const t=e((e=>{e.Fragment=Symbol.for(`react.fragment`),e.jsxDEV=void 0}))();export default t;export const Fragment=t.Fragment;export const jsxDEV=t.jsxDEV;
