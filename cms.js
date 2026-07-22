@@ -29,18 +29,37 @@ function editableImages() {
   return [...document.querySelectorAll('main img')]
 }
 
+function repairEncodingArtifacts(value) {
+  return value
+    .replace(/\u00e2\u20ac\u201d/g, '—')
+    .replace(/\u00c2\u00b7/g, '·')
+    .replace(/\u00e2\u2020\u2019/g, '→')
+    .replace(/\u00e2\u20ac\u2122/g, '’')
+    .replace(/\u00e2\u20ac\u0153/g, '“')
+    .replace(/\u00e2\u20ac\u009d/g, '”')
+}
+
 function applyPage(page) {
   if (!page) return
   if (page.seoTitle) document.title = page.seoTitle
   const description = document.querySelector('meta[name="description"]')
   if (description && page.seoDescription) description.content = page.seoDescription
 
+  if (pageId === 'about') {
+    for (const block of page.textBlocks || []) {
+      if (!block.content || block.content.includes('Edith Cowan University')) continue
+      block.content = block.content
+        .replace('Master of Counselling · ACA Registered Counsellor', 'Master of Counselling · <strong>Edith Cowan University</strong> · ACA Registered Counsellor')
+        .replace('<strong>Master of Counselling</strong>', '<strong>Master of Counselling — Edith Cowan University</strong>')
+    }
+  }
+
   const textNodes = editableTextNodes()
   for (const block of page.textBlocks || []) {
     const index = Number(block.key?.replace('text-', ''))
     const element = textNodes[index]
     if (!element || !block.content) continue
-    element.innerHTML = block.content
+    element.innerHTML = repairEncodingArtifacts(block.content)
     if (block.href && element instanceof HTMLAnchorElement) element.href = block.href
   }
 
