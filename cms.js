@@ -39,6 +39,23 @@ function repairEncodingArtifacts(value) {
     .replace(/\u00e2\u20ac\u009d/g, '”')
 }
 
+function applyBranding() {
+  document.title = document.title
+    .replace(/Lisa Chiarini Counselling/gi, 'SPES COUNSELLING')
+    .replace(/\s\|\sLisa Chiarini$/i, ' | SPES COUNSELLING')
+
+  const heroName = document.querySelector('.hero-brand-name')
+  if (heroName) heroName.textContent = 'SPES'
+
+  document.querySelectorAll('.contact-card h2').forEach((heading) => {
+    if (/Lisa Chiarini Counselling/i.test(heading.textContent)) heading.textContent = 'SPES COUNSELLING'
+  })
+
+  document.querySelectorAll('main p').forEach((paragraph) => {
+    paragraph.innerHTML = paragraph.innerHTML.replace(/Lisa Chiarini Counselling/gi, 'SPES COUNSELLING')
+  })
+}
+
 function applyPage(page) {
   if (!page) return
   if (page.seoTitle) document.title = page.seoTitle
@@ -100,9 +117,11 @@ async function loadCmsContent() {
     const {page, settings} = await sanityQuery(query)
     applyPage(page)
     applySettings(settings)
+    applyBranding()
     document.documentElement.dataset.cms = page ? 'connected' : 'fallback'
   } catch (error) {
     console.warn('Using built-in website content because Sanity is unavailable.', error)
+    applyBranding()
     document.documentElement.dataset.cms = 'fallback'
   }
 }
