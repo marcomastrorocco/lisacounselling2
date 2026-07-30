@@ -62,3 +62,20 @@
 .section.surface{background:#F5F8F9}
 .cta-band,.footer-main{background:var(--pine)}
 @media(max-width:600px){.hero-identity{padding:4.25rem 1rem;background-position:58% 52%}.hero-brand-name{font-size:clamp(4.5rem,25vw,7rem)}}
+
+/* Midnight-blue option from the approved SPES brand board */
+:root{--ivory:#0D1B2A;--surface:#13283B;--pine:#F4F1EB;--pine-deep:#07131F;--plum:#D4AF7A;--sage:#A6C3BE;--charcoal:#F4F1EB;--gold:#D4AF7A}
+body,.home-hero,.page-hero,.section{background:#0D1B2A;color:#F4F1EB}
+.section.surface,.trust-bar,.line-band,.card,.contact-card,.contact-form,.practical,.crisis-band{background:#13283B;color:#F4F1EB}
+.site-header{background:#0A1826;border-bottom-color:rgba(166,195,190,.3)}
+.brand,.nav-links a{color:#F4F1EB}.menu-toggle{border-color:#A6C3BE}.menu-toggle span,.menu-toggle span:before,.menu-toggle span:after{background:#F4F1EB}
+h1,h2,h3,.credentials-band,.form-field label{color:#F4F1EB}
+a,.crisis-band a{color:#D4AF7A}
+.button,.button.secondary,.nav-links a.button{background:#D4AF7A;border-color:#D4AF7A;color:#0D1B2A}
+.button:hover,.button.secondary:hover,.nav-links a.button:hover{background:#E2C595;color:#0D1B2A}
+.hero-identity:before{background:linear-gradient(90deg,rgba(13,27,42,.78),rgba(13,27,42,.56) 52%,rgba(13,27,42,.82))}
+.hero-identity .hero-brand-name,.hero-identity .tagline,.hero-brand-name:after{color:#F4F1EB}
+.hero-brand-name:after{border-color:#D4AF7A}
+.home-hero .hero-copy{border-top-color:rgba(166,195,190,.35)}
+.cta-band,.footer-main{background:#07131F;color:#F4F1EB}
+.form-field input,.form-field textarea{background:#0D1B2A;border-color:#A6C3BE;color:#F4F1EB}
