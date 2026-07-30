@@ -85,3 +85,15 @@ body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38
 .section.surface,.trust-bar,.line-band,.crisis-band{background:radial-gradient(ellipse at center,#1D3C51 0%,#142D42 52%,#0B1C2B 100%)}
 .card,.contact-card,.contact-form,.practical{background:linear-gradient(145deg,rgba(29,60,81,.94),rgba(13,31,47,.96));border-color:rgba(166,195,190,.34)}
 .site-header{background:linear-gradient(90deg,#07131F 0%,#132C41 50%,#07131F 100%)}
+
+/* Open-circle SPES logo treatment, recreated without an image background */
+.hero-identity:before{background:radial-gradient(ellipse at 50% 48%,rgba(250,235,207,.88) 0%,rgba(232,209,172,.72) 30%,rgba(28,58,80,.38) 66%,rgba(9,24,39,.76) 100%)}
+.hero-brand-name{display:inline-block;position:relative;z-index:1;color:#2C1733!important;text-shadow:0 1px 0 rgba(255,255,255,.18)}
+.hero-brand-name:before{content:'';position:absolute;z-index:-1;width:1.7em;height:1.7em;left:-.42em;top:-.48em;border:3px solid #D4AF7A;border-right-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:rotate(-24deg);opacity:.95}
+.hero-brand-name:after{color:#C78A31!important;position:relative;z-index:2}
+.hero-identity:after{content:'';position:absolute;z-index:0;left:24%;top:66%;width:53%;height:72px;border-top:4px solid #D4AF7A;border-radius:50%;transform:rotate(4deg);filter:drop-shadow(0 1px 0 rgba(44,23,51,.35));pointer-events:none}
+.hero-identity .tagline{z-index:2;color:#2C1733!important;text-shadow:0 1px 0 rgba(255,255,255,.3);margin-top:3.4rem}
+.brand:before{color:#F4F1EB}.brand:after{color:#D4AF7A}
+.brand{position:relative}.brand:before{position:relative;z-index:1}.brand{border-left:1px solid rgba(212,175,122,.72);border-radius:50%;padding:.25rem .65rem .3rem}
+.footer-logo{display:none}.footer-logo+p:before{content:'spes  ·  COUNSELLING';display:block;margin-bottom:.8rem;color:#F4F1EB;font:500 1.9rem/1 var(--font-display);letter-spacing:.08em}
+@media(max-width:600px){.hero-brand-name:before{border-width:2px}.hero-identity:after{left:14%;top:64%;width:72%;height:50px;border-top-width:3px}.hero-identity .tagline{margin-top:3rem}.footer-logo+p:before{font-size:1.6rem}}
