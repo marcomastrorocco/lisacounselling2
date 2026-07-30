@@ -145,3 +145,15 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 .brand{position:relative}.brand:before{position:relative;z-index:1}.brand{border-left:1px solid rgba(212,175,122,.72);border-radius:50%;padding:.25rem .65rem .3rem}
 .footer-logo{display:none}.footer-logo+p:before{content:'spes  ·  COUNSELLING';display:block;margin-bottom:.8rem;color:#F4F1EB;font:500 1.9rem/1 var(--font-display);letter-spacing:.08em}
 @media(max-width:600px){.hero-brand-name:before{border-width:2px}.hero-identity:after{left:14%;top:64%;width:72%;height:50px;border-top-width:3px}.hero-identity .tagline{margin-top:3rem}.footer-logo+p:before{font-size:1.6rem}}
+
+/* Clear, beach-led home identity */
+.quiet-hero{background-image:url('assets/img/spes-clear-sea.png');background-position:center 56%}
+.quiet-hero-overlay{background:linear-gradient(to bottom,rgba(245,243,239,.06),rgba(249,239,227,.20))}
+.quiet-hero-content{padding:2rem 2.5rem}
+.quiet-hero-wordmark{margin:0;color:#0A1420;font:500 clamp(5rem,11vw,8rem)/.8 var(--font-display);letter-spacing:.015em;text-shadow:0 1px 10px rgba(245,243,239,.55)}
+.quiet-hero-label{margin-top:1.6rem;color:#0A1420;font-weight:600;letter-spacing:.32em}
+.quiet-hero-tagline{color:#0A1420;font-weight:500;text-shadow:0 1px 8px rgba(245,243,239,.7)}
+.brand{border:0!important;border-radius:0!important;padding:0!important}
+.brand:before{color:#0A1420!important;font:500 2.55rem/.72 var(--font-display)}
+.brand:after{color:#B8905A!important;font:600 .43rem/1 var(--font-body);letter-spacing:.3em;margin-top:.65rem}
+@media(max-width:600px){.quiet-hero{background-position:center 55%}.quiet-hero-content{padding:1.5rem}.quiet-hero-wordmark{font-size:clamp(4.5rem,25vw,6.5rem)}}
