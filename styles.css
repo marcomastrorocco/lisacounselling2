@@ -81,10 +81,10 @@ a,.crisis-band a{color:#D4AF7A}
 .form-field input,.form-field textarea{background:#0D1B2A;border-color:#A6C3BE;color:#F4F1EB}
 
 /* Softer dimensional navy: lighter through the centre, deeper at the edges */
-body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38%,#254C68 0%,#193956 42%,#0C2034 100%)}
-.section.surface,.trust-bar,.line-band,.crisis-band{background:radial-gradient(ellipse at center,#274F6A 0%,#1A3B57 52%,#0E2538 100%)}
-.card,.contact-card,.contact-form,.practical{background:linear-gradient(145deg,rgba(39,79,106,.94),rgba(17,40,61,.96));border-color:rgba(166,195,190,.4)}
-.site-header{background:linear-gradient(90deg,#0A1B2B 0%,#193956 50%,#0A1B2B 100%)}
+body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38%,#224660 0%,#17354E 42%,#0B1D2F 100%)}
+.section.surface,.trust-bar,.line-band,.crisis-band{background:radial-gradient(ellipse at center,#244861 0%,#183650 52%,#0D2234 100%)}
+.card,.contact-card,.contact-form,.practical{background:linear-gradient(145deg,rgba(36,72,97,.94),rgba(15,36,55,.96));border-color:rgba(166,195,190,.38)}
+.site-header{background:linear-gradient(90deg,#091928 0%,#17354E 50%,#091928 100%)}
 
 /* Open-circle SPES logo treatment, recreated without an image background */
 .hero-identity:before{background:radial-gradient(ellipse at 50% 48%,rgba(255,250,241,.48) 0%,rgba(255,250,241,.2) 42%,rgba(13,27,42,.16) 100%)}
