@@ -48,11 +48,11 @@
 :root{--ivory:#E8F0F2;--surface:#F5F8F9;--pine:#0D1B2A;--pine-deep:#07131F;--plum:#B98A3B;--sage:#A6C3BE;--charcoal:#263442;--gold:#D4AF7A}
 .brand img{display:none}.brand{display:grid;justify-items:center;color:var(--pine);line-height:.75}.brand:before{content:'spes';font:500 2.35rem/.72 var(--font-display);letter-spacing:.02em}.brand:after{content:'C O U N S E L L I N G';font:600 .42rem/1 var(--font-body);letter-spacing:.12em;margin-top:8px}
 .hero-mark,.hero-service,.hero-values,.hero-leaf{display:none}.hero-brand-name{font:500 clamp(5.5rem,15vw,10rem)/.68 var(--font-display);letter-spacing:.01em;text-transform:lowercase;transform:none}.hero-brand-name:after{content:'COUNSELLING';display:block;margin-top:2rem;font:600 clamp(.8rem,1.7vw,1.12rem)/1 var(--font-body);letter-spacing:.55em;text-transform:uppercase;transform:translateX(.27em)}.hero-identity .tagline{color:var(--pine);font-weight:500}.hero-identity .tagline:before{content:'Support recovery, resilience and meaningful change.';display:block}.hero-identity .tagline{font-size:0}.hero-identity .tagline:before{font:italic 500 clamp(1.25rem,3vw,1.75rem)/1.35 var(--font-display)}
-.media-band.home img,.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('assets/img/spes-calm-sea.png');filter:saturate(.72) contrast(.92);object-position:center 54%}
-.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('../assets/img/spes-calm-sea.png')}
+.media-band.home img,.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('assets/img/spes-clear-sea.png');filter:saturate(.82) contrast(.96);object-position:center 54%}
+.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('../assets/img/spes-clear-sea.png')}
 .footer-logo{display:none}
 .home-hero{padding-top:clamp(1.5rem,4vw,3rem)}
-.hero-identity{position:relative;isolation:isolate;width:min(100%,1000px);padding:clamp(4rem,10vw,7.5rem) clamp(1.25rem,5vw,4rem);overflow:hidden;border-radius:var(--radius);background:url('assets/img/spes-calm-sea.png') center 54%/cover no-repeat;box-shadow:0 12px 35px rgba(13,27,42,.13)}
+.hero-identity{position:relative;isolation:isolate;width:min(100%,1000px);padding:clamp(4rem,10vw,7.5rem) clamp(1.25rem,5vw,4rem);overflow:hidden;border-radius:var(--radius);background:url('assets/img/spes-clear-sea.png') center 54%/cover no-repeat;box-shadow:0 12px 35px rgba(13,27,42,.13)}
 .hero-identity:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(232,240,242,.78),rgba(166,195,190,.36) 56%,rgba(232,240,242,.86))}
 .hero-identity .hero-brand-name,.hero-identity .tagline{position:relative}
 .media-band.home{display:none}
@@ -87,11 +87,11 @@ body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38
 .site-header{background:linear-gradient(90deg,#07131F 0%,#132C41 50%,#07131F 100%)}
 
 /* Open-circle SPES logo treatment, recreated without an image background */
-.hero-identity:before{background:radial-gradient(ellipse at 50% 48%,rgba(250,235,207,.88) 0%,rgba(232,209,172,.72) 30%,rgba(28,58,80,.38) 66%,rgba(9,24,39,.76) 100%)}
+.hero-identity:before{background:radial-gradient(ellipse at 50% 48%,rgba(255,250,241,.48) 0%,rgba(255,250,241,.2) 42%,rgba(13,27,42,.16) 100%)}
 .hero-brand-name{display:inline-block;position:relative;z-index:1;color:#2C1733!important;text-shadow:0 1px 0 rgba(255,255,255,.18)}
-.hero-brand-name:before{content:'';position:absolute;z-index:-1;width:1.7em;height:1.7em;left:-.42em;top:-.48em;border:3px solid #D4AF7A;border-right-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:rotate(-24deg);opacity:.95}
-.hero-brand-name:after{color:#C78A31!important;position:relative;z-index:2}
-.hero-identity:after{content:'';position:absolute;z-index:0;left:24%;top:66%;width:53%;height:72px;border-top:4px solid #D4AF7A;border-radius:50%;transform:rotate(4deg);filter:drop-shadow(0 1px 0 rgba(44,23,51,.35));pointer-events:none}
+.hero-brand-name:before{content:'';position:absolute;z-index:-1;width:1.7em;height:1.7em;left:-.42em;top:-.48em;border:3px solid #B97820;border-right-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:rotate(-24deg);opacity:.98}
+.hero-brand-name:after{color:#A96618!important;position:relative;z-index:2}
+.hero-identity:after{content:'';position:absolute;z-index:0;left:24%;top:66%;width:53%;height:72px;border-top:4px solid #B97820;border-radius:50%;transform:rotate(4deg);filter:drop-shadow(0 1px 0 rgba(44,23,51,.25));pointer-events:none}
 .hero-identity .tagline{z-index:2;color:#2C1733!important;text-shadow:0 1px 0 rgba(255,255,255,.3);margin-top:3.4rem}
 .brand:before{color:#F4F1EB}.brand:after{color:#D4AF7A}
 .brand{position:relative}.brand:before{position:relative;z-index:1}.brand{border-left:1px solid rgba(212,175,122,.72);border-radius:50%;padding:.25rem .65rem .3rem}
