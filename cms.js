@@ -94,20 +94,20 @@ function applyPage(page) {
 }
 
 function applySettings(settings) {
-  if (!settings) return
+  const publicEmail = settings?.email || 'info@spescounselling.com.au'
   document.querySelectorAll('a[href*="{{HALAXY_URL}}"], a[href="{{HALAXY_URL}}"]')
-    .forEach((link) => { if (settings.bookingUrl) link.href = settings.bookingUrl })
+    .forEach((link) => { if (settings?.bookingUrl) link.href = settings.bookingUrl })
   document.querySelectorAll('a[href^="mailto:{{PRACTICE_EMAIL}}"]')
     .forEach((link) => {
-      if (!settings.email) return
-      link.href = `mailto:${settings.email}`
-      link.textContent = settings.email
+      link.href = `mailto:${publicEmail}`
+      link.textContent = publicEmail
     })
   document.querySelectorAll('form[action="{{CONTACT_FORM_ENDPOINT}}"]')
-    .forEach((form) => { if (settings.contactFormEndpoint) form.action = settings.contactFormEndpoint })
+    .forEach((form) => { if (settings?.contactFormEndpoint) form.action = settings.contactFormEndpoint })
 }
 
 async function loadCmsContent() {
+  applySettings(null)
   if (!pageId) return
   try {
     const query = `{
@@ -121,6 +121,7 @@ async function loadCmsContent() {
     document.documentElement.dataset.cms = page ? 'connected' : 'fallback'
   } catch (error) {
     console.warn('Using built-in website content because Sanity is unavailable.', error)
+    applySettings(null)
     applyBranding()
     document.documentElement.dataset.cms = 'fallback'
   }
