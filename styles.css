@@ -43,3 +43,11 @@
 .nav-links a.button,.nav-links a.button:hover{color:var(--white)}
 .spes-meaning{margin-top:1.5rem;padding:1.1rem 1.25rem;border-left:3px solid var(--sage);background:var(--surface);color:var(--pine)}
 @media(max-width:600px){.hero-brand-name{font-size:clamp(1.44rem,7.36vw,2.08rem);letter-spacing:.048em}.hero-service{font-size:clamp(1.08rem,5.6vw,1.6rem);letter-spacing:.08em;gap:.56rem}.hero-values{gap:.16rem}.hero-values span+span:before{margin-right:.48rem}.hero-leaf{margin-top:.8rem}.hero-mark{width:80%}}
+
+/* SPES blue brand refresh */
+:root{--ivory:#F6F3EE;--surface:#FCFAF6;--pine:#0D1B2A;--pine-deep:#07131F;--plum:#B98A3B;--sage:#A6C3BE;--charcoal:#263442;--gold:#D4AF7A}
+.brand img{display:none}.brand{display:grid;justify-items:center;color:var(--pine);line-height:.75}.brand:before{content:'spes';font:500 2.35rem/.72 var(--font-display);letter-spacing:.02em}.brand:after{content:'C O U N S E L L I N G';font:600 .42rem/1 var(--font-body);letter-spacing:.12em;margin-top:8px}
+.hero-mark,.hero-service,.hero-values,.hero-leaf{display:none}.hero-brand-name{font:500 clamp(5.5rem,15vw,10rem)/.68 var(--font-display);letter-spacing:.01em;text-transform:lowercase;transform:none}.hero-brand-name:after{content:'COUNSELLING';display:block;margin-top:2rem;font:600 clamp(.8rem,1.7vw,1.12rem)/1 var(--font-body);letter-spacing:.55em;text-transform:uppercase;transform:translateX(.27em)}.hero-identity .tagline{color:var(--pine);font-weight:500}.hero-identity .tagline:before{content:'Supporting recovery, resilience and meaningful change.';display:block}.hero-identity .tagline{font-size:0}.hero-identity .tagline:before{font:italic 500 clamp(1.25rem,3vw,1.75rem)/1.35 var(--font-display)}
+.media-band.home img,.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('assets/img/spes-calm-sea.png');filter:saturate(.72) contrast(.92);object-position:center 54%}
+.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('../assets/img/spes-calm-sea.png')}
+.footer-logo{display:none}
