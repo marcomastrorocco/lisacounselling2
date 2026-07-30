@@ -157,3 +157,9 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 .brand:before{color:#0A1420!important;font:500 2.55rem/.72 var(--font-display)}
 .brand:after{color:#B8905A!important;font:600 .43rem/1 var(--font-body);letter-spacing:.3em;margin-top:.65rem}
 @media(max-width:600px){.quiet-hero{background-position:center 55%}.quiet-hero-content{padding:1.5rem}.quiet-hero-wordmark{font-size:clamp(4.5rem,25vw,6.5rem)}}
+
+/* Gold open-circle and wave from the approved SPES mark */
+.quiet-hero-wordmark{display:inline-block;position:relative;z-index:1}
+.quiet-hero-wordmark:before{content:"";position:absolute;z-index:-1;width:1.72em;height:1.72em;left:-.43em;top:-.5em;border:3px solid #B8905A;border-right-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:rotate(-23deg);pointer-events:none}
+.quiet-hero-wordmark:after{content:"";position:absolute;z-index:-1;width:2.18em;height:.58em;left:-.49em;top:.79em;border-top:4px solid #B8905A;border-radius:50%;transform:rotate(4deg);pointer-events:none}
+@media(max-width:600px){.quiet-hero-wordmark:before{border-width:2px}.quiet-hero-wordmark:after{border-top-width:3px}}
