@@ -79,3 +79,9 @@ a,.crisis-band a{color:#D4AF7A}
 .home-hero .hero-copy{border-top-color:rgba(166,195,190,.35)}
 .cta-band,.footer-main{background:#07131F;color:#F4F1EB}
 .form-field input,.form-field textarea{background:#0D1B2A;border-color:#A6C3BE;color:#F4F1EB}
+
+/* Softer dimensional navy: lighter through the centre, deeper at the edges */
+body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38%,#1C3A50 0%,#132C41 42%,#091827 100%)}
+.section.surface,.trust-bar,.line-band,.crisis-band{background:radial-gradient(ellipse at center,#1D3C51 0%,#142D42 52%,#0B1C2B 100%)}
+.card,.contact-card,.contact-form,.practical{background:linear-gradient(145deg,rgba(29,60,81,.94),rgba(13,31,47,.96));border-color:rgba(166,195,190,.34)}
+.site-header{background:linear-gradient(90deg,#07131F 0%,#132C41 50%,#07131F 100%)}
