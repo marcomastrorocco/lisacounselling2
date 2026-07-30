@@ -51,3 +51,9 @@
 .media-band.home img,.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('assets/img/spes-calm-sea.png');filter:saturate(.72) contrast(.92);object-position:center 54%}
 .media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('../assets/img/spes-calm-sea.png')}
 .footer-logo{display:none}
+.home-hero{padding-top:clamp(1.5rem,4vw,3rem)}
+.hero-identity{position:relative;isolation:isolate;width:min(100%,1000px);padding:clamp(4rem,10vw,7.5rem) clamp(1.25rem,5vw,4rem);overflow:hidden;border-radius:var(--radius);background:url('assets/img/spes-calm-sea.png') center 54%/cover no-repeat;box-shadow:0 12px 35px rgba(13,27,42,.13)}
+.hero-identity:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(246,243,238,.76),rgba(246,243,238,.58) 56%,rgba(246,243,238,.82))}
+.hero-identity .hero-brand-name,.hero-identity .tagline{position:relative}
+.media-band.home{display:none}
+@media(max-width:600px){.hero-identity{padding:4.25rem 1rem;background-position:58% 52%}.hero-brand-name{font-size:clamp(4.5rem,25vw,7rem)}}
