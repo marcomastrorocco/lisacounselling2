@@ -81,10 +81,14 @@ a,.crisis-band a{color:#D4AF7A}
 .form-field input,.form-field textarea{background:#0D1B2A;border-color:#A6C3BE;color:#F4F1EB}
 
 /* Softer dimensional navy: lighter through the centre, deeper at the edges */
-body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38%,#224660 0%,#17354E 42%,#0B1D2F 100%)}
-.section.surface,.trust-bar,.line-band,.crisis-band{background:radial-gradient(ellipse at center,#244861 0%,#183650 52%,#0D2234 100%)}
-.card,.contact-card,.contact-form,.practical{background:linear-gradient(145deg,rgba(36,72,97,.94),rgba(15,36,55,.96));border-color:rgba(166,195,190,.38)}
-.site-header{background:linear-gradient(90deg,#091928 0%,#17354E 50%,#091928 100%)}
+body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38%,#2B7C7A 0%,#18595D 43%,#102F36 100%)}
+.section.surface,.trust-bar,.line-band,.crisis-band{background:radial-gradient(ellipse at center,#3A726D 0%,#285651 50%,#2D3934 100%)}
+.card,.contact-card,.contact-form,.practical{background:linear-gradient(145deg,rgba(67,98,89,.96),rgba(75,61,47,.97));border-color:rgba(205,170,115,.48)}
+.site-header{background:linear-gradient(90deg,#0D2C32 0%,#235E60 50%,#0D2C32 100%)}
+.button,.button.secondary,.nav-links a.button{background:#CDAA73;border-color:#CDAA73;color:#172D2D}
+.button:hover,.button.secondary:hover,.nav-links a.button:hover{background:#DFC493;color:#172D2D}
+.cta-band,.footer-main{background:linear-gradient(110deg,#0B292E,#41372D)}
+.home-hero .hero-copy{border-top-color:rgba(205,170,115,.42)}
 
 /* Open-circle SPES logo treatment, recreated without an image background */
 .hero-identity:before{background:radial-gradient(ellipse at 50% 48%,rgba(255,250,241,.48) 0%,rgba(255,250,241,.2) 42%,rgba(13,27,42,.16) 100%)}
