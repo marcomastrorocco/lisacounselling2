@@ -47,6 +47,13 @@ function applyBranding() {
   const heroName = document.querySelector('.hero-brand-name')
   if (heroName) heroName.textContent = 'SPES'
 
+  const quietWordmark = document.querySelector('.quiet-hero-wordmark')
+  const quietLabel = document.querySelector('.quiet-hero-label')
+  const quietTagline = document.querySelector('.quiet-hero-tagline')
+  if (quietWordmark) quietWordmark.textContent = 'spes'
+  if (quietLabel) quietLabel.textContent = 'Counselling'
+  if (quietTagline) quietTagline.innerHTML = 'Supporting recovery, resilience<br>and meaningful change.'
+
   document.querySelectorAll('.contact-card h2').forEach((heading) => {
     if (/Lisa Chiarini Counselling/i.test(heading.textContent)) heading.textContent = 'SPES COUNSELLING'
   })
