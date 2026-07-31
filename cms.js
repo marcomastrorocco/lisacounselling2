@@ -109,8 +109,20 @@ function applySettings(settings) {
       link.href = `mailto:${publicEmail}`
       link.textContent = publicEmail
     })
-  document.querySelectorAll('form[action="{{CONTACT_FORM_ENDPOINT}}"]')
-    .forEach((form) => { if (settings?.contactFormEndpoint) form.action = settings.contactFormEndpoint })
+  document.querySelectorAll('.contact-form')
+    .forEach((form) => {
+      form.action = '/contact-submit.php'
+      if (!form.querySelector('[name="website"]')) {
+        const honeypot = document.createElement('div')
+        honeypot.hidden = true
+        honeypot.setAttribute('aria-hidden', 'true')
+        honeypot.innerHTML = '<label>Website<input name="website" tabindex="-1" autocomplete="off"></label>'
+        form.append(honeypot)
+      }
+      const status = new URLSearchParams(location.search)
+      if (status.get('sent') === '1') form.insertAdjacentHTML('afterbegin', '<p class="form-status success" role="status">Thank you. Your enquiry has been sent to SPES Counselling.</p>')
+      if (status.get('error') === '1') form.insertAdjacentHTML('afterbegin', '<p class="form-status error" role="alert">Your enquiry could not be sent. Please email info@spescounselling.com.au directly.</p>')
+    })
 }
 
 async function loadCmsContent() {
