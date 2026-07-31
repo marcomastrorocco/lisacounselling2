@@ -78,7 +78,10 @@ function applyPage(page) {
     }
   }
 
-  const textNodes = editableTextNodes()
+  // The original position-based home content no longer matches the redesigned
+  // page structure. Keep the approved built-in home wording intact instead of
+  // allowing stale CMS positions to overwrite unrelated headings and links.
+  const textNodes = pageId === 'home' ? [] : editableTextNodes()
   for (const block of page.textBlocks || []) {
     const index = Number(block.key?.replace('text-', ''))
     const element = textNodes[index]
