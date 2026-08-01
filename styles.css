@@ -165,9 +165,16 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 @media(max-width:600px){.quiet-hero-wordmark:before{border-width:2px}.quiet-hero-wordmark:after{border-top-width:3px}}
 
 /* Compact transparent SPES mark for the site header */
-.site-header .brand{display:block!important;width:150px;height:70px;background:url('/assets/spes-header-logo.svg') center/contain no-repeat;border:0!important;border-radius:0!important;padding:0!important}
+.site-header .brand{display:block!important;width:150px;height:70px;background:url('/assets/spes-header-logo.svg?v=gold') center/contain no-repeat;border:0!important;border-radius:0!important;padding:0!important}
 .site-header .brand:before,.site-header .brand:after{content:none!important}
 @media(max-width:600px){.site-header .brand{width:124px;height:58px}}
 .form-status{padding:1rem 1.15rem;border:1px solid var(--color-gold-light);border-radius:6px;background:var(--color-bg-warm);color:var(--color-navy)}
 .form-status.success{border-color:var(--color-gold)}.form-status.error{font-weight:600}
 .home-introduction{text-align:center}.home-introduction .prose{max-width:760px}.home-introduction p{font-size:1.05rem;line-height:1.75}.home-introduction .text-link{font-size:.9rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--color-navy)}
+
+/* Slightly deeper coastal image and a cleaner metallic gold identity */
+.quiet-hero-overlay{background:linear-gradient(to bottom,rgba(10,20,32,.08),rgba(10,20,32,.14))}
+.quiet-hero-mark,.quiet-hero-divider i{color:#D4AF7A;background-color:#D4AF7A}
+.quiet-hero-divider span{background:#D4AF7A}
+.quiet-hero-wordmark:before{border-color:#D4AF7A;border-right-color:transparent;border-bottom-color:transparent}
+.quiet-hero-wordmark:after{border-top-color:#D4AF7A}

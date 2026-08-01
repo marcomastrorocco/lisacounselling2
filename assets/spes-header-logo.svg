@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 120" role="img" aria-labelledby="title">
   <title id="title">SPES Counselling</title>
-  <path d="M73 104C35 85 25 39 50 14C71-7 111 2 124 8" fill="none" stroke="#B8905A" stroke-width="2.4" stroke-linecap="round"/>
-  <path d="M27 93C74 70 110 84 139 96C169 108 199 106 235 87" fill="none" stroke="#B8905A" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M73 104C35 85 25 39 50 14C71-7 111 2 124 8" fill="none" stroke="#D4AF7A" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M27 93C74 70 110 84 139 96C169 108 199 106 235 87" fill="none" stroke="#D4AF7A" stroke-width="3.2" stroke-linecap="round"/>
   <text x="130" y="69" text-anchor="middle" fill="#0A1420" font-family="Cormorant Garamond, Playfair Display, Georgia, serif" font-size="58" font-weight="500">spes</text>
   <text x="139" y="91" text-anchor="middle" fill="#0A1420" font-family="Jost, Montserrat, Arial, sans-serif" font-size="9" font-weight="600" letter-spacing="5">COUNSELLING</text>
 </svg>
