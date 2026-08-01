@@ -97,9 +97,23 @@ function applyPage(page) {
     if (!image || !block.imageUrl) continue
     image.src = `${block.imageUrl}?auto=format&fit=crop&w=1800&q=82`
     image.srcset = ''
-    image.alt = block.alt || ''
+    image.alt = block.alt || block.mediaAlt || ''
     const source = image.closest('picture')?.querySelector('source')
     if (source) source.remove()
+  }
+
+  if (page.cta) {
+    const ctaArea = document.querySelector('main .cta-band')
+    const button = ctaArea?.querySelector('a.button') || document.querySelector('main a.button')
+    const heading = ctaArea?.querySelector('h2, h3')
+    const body = ctaArea?.querySelector('p')
+    if (heading && page.cta.heading) heading.textContent = page.cta.heading
+    if (body && page.cta.body) body.textContent = page.cta.body
+    if (button && page.cta.buttonLabel) button.textContent = page.cta.buttonLabel
+    if (button && page.cta.buttonUrl) {
+      button.href = page.cta.buttonUrl
+      button.hidden = false
+    }
   }
 }
 
@@ -133,7 +147,15 @@ async function loadCmsContent() {
   if (!pageId) return
   try {
     const query = `{
-      "page": *[_type == "editablePage" && pageId == "${pageId}"][0]{..., images[]{..., "imageUrl": image.asset->url}},
+      "page": *[_type == "editablePage" && pageId == "${pageId}"][0]{
+        ...,
+        images[]{
+          ...,
+          "imageUrl": coalesce(media->image.asset->url, image.asset->url),
+          "mediaAlt": media->alt
+        },
+        "cta": cta->{heading, body, buttonLabel, buttonUrl}
+      },
       "settings": *[_type == "siteSettings"][0]{...}
     }`
     const {page, settings} = await sanityQuery(query)
