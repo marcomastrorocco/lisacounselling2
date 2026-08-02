@@ -93,7 +93,7 @@ body,.home-hero,.page-hero,.section{background:radial-gradient(ellipse at 50% 38
 .hero-identity{box-shadow:0 12px 32px rgba(24,63,63,.14);outline:1px solid rgba(190,158,106,.18)}
 
 /* 2026 approved quiet cream / navy / gold design brief */
-:root{--color-bg:#F5F3EF;--color-bg-warm:#F9EFE3;--color-bg-warm-2:#F3E4D3;--color-navy:#0A1420;--color-navy-muted:#3A4A5C;--color-gold:#B8905A;--color-gold-light:#D9C4A3;--ivory:#F5F3EF;--surface:#F9EFE3;--pine:#0A1420;--pine-deep:#0A1420;--plum:#B8905A;--sage:#D9C4A3;--charcoal:#3A4A5C;--white:#F5F3EF;--font-body:'Jost','Montserrat',sans-serif}
+:root{--color-bg:#E8E1D8;--color-bg-warm:#F9EFE3;--color-bg-warm-2:#F3E4D3;--color-navy:#3B2847;--color-navy-muted:#3A4A5C;--color-gold:#C68A3A;--color-gold-light:#D9C4A3;--ivory:#F5F3EF;--surface:#F9EFE3;--pine:#0A1420;--pine-deep:#0A1420;--plum:#B8905A;--sage:#D9C4A3;--charcoal:#3A4A5C;--white:#F5F3EF;--font-body:'Jost','Montserrat',sans-serif}
 body,.home-hero,.page-hero,.section{background:var(--color-bg);color:var(--color-navy-muted)}
 .section.surface,.trust-bar,.line-band,.crisis-band{background:var(--color-bg-warm);color:var(--color-navy-muted)}
 .card,.contact-card,.contact-form,.practical{background:var(--color-bg-warm-2);color:var(--color-navy-muted);border:1px solid var(--color-gold-light);box-shadow:none}
@@ -103,7 +103,7 @@ body,.home-hero,.page-hero,.section{background:var(--color-bg);color:var(--color
 h1,h2,h3,.credentials-band,.form-field label{color:var(--color-navy);font-weight:400}
 p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 .button,.button.secondary,.nav-links a.button{background:transparent;border:1px solid var(--color-gold);color:var(--color-navy);border-radius:6px}
-.button:hover,.button.secondary:hover,.nav-links a.button:hover{background:var(--color-gold);color:var(--color-bg)}
+.button:hover,.button.secondary:hover,.nav-links a.button:hover{background:#8C6425;color:#FAF7F2}
 .cta-band,.footer-main{background:var(--color-navy);color:var(--color-bg)}
 .footer-main p,.footer-main a,.cta-band h2{color:var(--color-bg)}
 .home-hero{padding:0}.home-hero>.container{width:100%;max-width:none}
@@ -174,7 +174,7 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 
 /* Slightly deeper coastal image and a cleaner metallic gold identity */
 .quiet-hero-overlay{background:linear-gradient(to bottom,rgba(10,20,32,.08),rgba(10,20,32,.14))}
-.quiet-hero-mark,.quiet-hero-divider i{color:#D4AF7A;background-color:#D4AF7A}
-.quiet-hero-divider span{background:#D4AF7A}
-.quiet-hero-wordmark:before{border-color:#D4AF7A;border-right-color:transparent;border-bottom-color:transparent}
-.quiet-hero-wordmark:after{border-top-color:#D4AF7A}
+.quiet-hero-mark{color:#C68A3A}.quiet-hero-divider i{color:#C68A3A;background-color:#C68A3A}
+.quiet-hero-divider span{background:#C68A3A}
+.quiet-hero-wordmark:before{border-color:#C68A3A;border-right-color:transparent;border-bottom-color:transparent}
+.quiet-hero-wordmark:after{border-top-color:#C68A3A}
