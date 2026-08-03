@@ -127,7 +127,7 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 .quiet-hero{position:relative;min-height:440px;display:flex;align-items:center;justify-content:center;background:url('assets/img/spes-hazy-water.png') center/cover no-repeat}
 .quiet-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(245,243,240,.10),rgba(245,243,240,.35))}
 .quiet-hero-content{position:relative;z-index:1;text-align:center;padding:2rem 2.5rem;color:var(--color-navy)}
-.quiet-hero-logo{display:block;width:min(92%,clamp(240px,46vw,760px));height:auto;margin:0 auto 1.5rem;filter:drop-shadow(0 1px 10px rgba(245,243,239,.45))}
+.quiet-hero-logo{display:block;width:min(92%,clamp(300px,60vw,680px));height:auto;margin:0 auto 1.5rem;filter:drop-shadow(0 1px 10px rgba(245,243,239,.45))}
 .quiet-hero-tagline{max-width:500px;margin:0 auto;font:italic 400 clamp(1.4rem,3vw,1.75rem)/1.35 var(--font-display);letter-spacing:.025em;color:var(--color-navy)}
 .brand{border:0;padding:0}.brand:before{content:'spes';color:var(--color-navy);opacity:1}.brand:after{content:'C O U N S E L L I N G';color:var(--color-gold)}
 @media(max-width:600px){.quiet-hero{min-height:320px}}
