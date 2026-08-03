@@ -126,13 +126,11 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 @media(max-width:600px){.hero-identity{min-height:320px;padding:2rem 1rem}.home-hero .hero-copy{padding:3.5rem 1rem}.media-band.home{aspect-ratio:16/6}}
 .quiet-hero{position:relative;min-height:440px;display:flex;align-items:center;justify-content:center;background:url('assets/img/spes-hazy-water.png') center/cover no-repeat}
 .quiet-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(245,243,240,.10),rgba(245,243,240,.35))}
-.quiet-hero-content{position:relative;z-index:1;text-align:center;padding:2rem;color:var(--color-navy)}
-.quiet-hero-mark{color:var(--color-gold);font:400 .75rem/1 var(--font-body);margin-bottom:1rem}
-.quiet-hero-label{margin:0;font:500 .9rem/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:var(--color-navy)}
-.quiet-hero-divider{width:220px;margin:1.25rem auto;display:flex;align-items:center;gap:.75rem}.quiet-hero-divider span{flex:1;height:1px;background:var(--color-gold)}.quiet-hero-divider i{width:7px;height:7px;border-radius:50%;background:var(--color-gold)}
+.quiet-hero-content{position:relative;z-index:1;text-align:center;padding:2rem 2.5rem;color:var(--color-navy)}
+.quiet-hero-logo{display:block;width:min(92%,clamp(240px,46vw,760px));height:auto;margin:0 auto 1.5rem;filter:drop-shadow(0 1px 10px rgba(245,243,239,.45))}
 .quiet-hero-tagline{max-width:500px;margin:0 auto;font:italic 400 clamp(1.4rem,3vw,1.75rem)/1.35 var(--font-display);letter-spacing:.025em;color:var(--color-navy)}
 .brand{border:0;padding:0}.brand:before{content:'spes';color:var(--color-navy);opacity:1}.brand:after{content:'C O U N S E L L I N G';color:var(--color-gold)}
-@media(max-width:600px){.quiet-hero{min-height:320px}.quiet-hero-divider{width:180px}}
+@media(max-width:600px){.quiet-hero{min-height:320px}}
 
 /* Open-circle SPES logo treatment, recreated without an image background */
 .hero-identity:before{background:radial-gradient(ellipse at 50% 48%,rgba(255,250,241,.48) 0%,rgba(255,250,241,.2) 42%,rgba(13,27,42,.16) 100%)}
@@ -149,20 +147,11 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 /* Clear, beach-led home identity */
 .quiet-hero{background-image:url('assets/img/spes-clear-sea.png');background-position:center 56%}
 .quiet-hero-overlay{background:linear-gradient(to bottom,rgba(245,243,239,.06),rgba(249,239,227,.20))}
-.quiet-hero-content{padding:2rem 2.5rem}
-.quiet-hero-wordmark{margin:0;color:#0A1420;font:500 clamp(5rem,11vw,8rem)/.8 var(--font-display);letter-spacing:.015em;text-shadow:0 1px 10px rgba(245,243,239,.55)}
-.quiet-hero-label{margin-top:1.6rem;color:#0A1420;font-weight:600;letter-spacing:.32em}
 .quiet-hero-tagline{color:#0A1420;font-weight:500;text-shadow:0 1px 8px rgba(245,243,239,.7)}
 .brand{border:0!important;border-radius:0!important;padding:0!important}
 .brand:before{color:#0A1420!important;font:500 2.55rem/.72 var(--font-display)}
 .brand:after{color:#B8905A!important;font:600 .43rem/1 var(--font-body);letter-spacing:.3em;margin-top:.65rem}
-@media(max-width:600px){.quiet-hero{background-position:center 55%}.quiet-hero-content{padding:1.5rem}.quiet-hero-wordmark{font-size:clamp(4.5rem,25vw,6.5rem)}}
-
-/* Gold open-circle and wave from the approved SPES mark */
-.quiet-hero-wordmark{display:inline-block;position:relative;z-index:1}
-.quiet-hero-wordmark:before{content:"";position:absolute;z-index:-1;width:1.72em;height:1.72em;left:-.43em;top:-.5em;border:3px solid #B8905A;border-right-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:rotate(-23deg);pointer-events:none}
-.quiet-hero-wordmark:after{content:"";position:absolute;z-index:-1;width:2.18em;height:.58em;left:-.49em;top:.79em;border-top:4px solid #B8905A;border-radius:50%;transform:rotate(4deg);pointer-events:none}
-@media(max-width:600px){.quiet-hero-wordmark:before{border-width:2px}.quiet-hero-wordmark:after{border-top-width:3px}}
+@media(max-width:600px){.quiet-hero{background-position:center 55%}.quiet-hero-content{padding:1.5rem}.quiet-hero-logo{width:min(88%,clamp(220px,72vw,380px))}}
 
 /* Compact transparent SPES mark for the site header */
 .site-header .brand{display:block!important;width:150px;height:70px;background:url('/assets/spes-header-logo.svg?v=plum') center/contain no-repeat;border:0!important;border-radius:0!important;padding:0!important}
@@ -174,7 +163,3 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 
 /* Slightly deeper coastal image and a cleaner metallic gold identity */
 .quiet-hero-overlay{background:linear-gradient(to bottom,rgba(10,20,32,.08),rgba(10,20,32,.14))}
-.quiet-hero-mark{color:#C68A3A}.quiet-hero-divider i{color:#C68A3A;background-color:#C68A3A}
-.quiet-hero-divider span{background:#C68A3A}
-.quiet-hero-wordmark:before{border-color:#C68A3A;border-right-color:transparent;border-bottom-color:transparent}
-.quiet-hero-wordmark:after{border-top-color:#C68A3A}
