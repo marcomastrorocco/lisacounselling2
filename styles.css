@@ -162,4 +162,4 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 .home-introduction{text-align:center}.home-introduction .prose{max-width:760px}.home-introduction p{font-size:1.05rem;line-height:1.75}.home-introduction .text-link{font-size:.9rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--color-navy)}
 
 /* Slightly deeper coastal image and a cleaner metallic gold identity */
-.quiet-hero-overlay{background:linear-gradient(to bottom,rgba(10,20,32,.08),rgba(10,20,32,.14))}
+.quiet-hero-overlay{background:linear-gradient(to bottom,rgba(250,247,242,.18),rgba(250,247,242,.10))}
