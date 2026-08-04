@@ -145,7 +145,7 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 @media(max-width:600px){.hero-brand-name:before{border-width:2px}.hero-identity:after{left:14%;top:64%;width:72%;height:50px;border-top-width:3px}.hero-identity .tagline{margin-top:3rem}.footer-logo+p:before{font-size:1.6rem}}
 
 /* Clear, beach-led home identity */
-.quiet-hero{background-image:url('assets/img/spes-hero-3.jpg');background-position:center 56%}
+.quiet-hero{background-image:url('assets/img/spes-hero-4.jpg');background-position:center 56%}
 .quiet-hero-overlay{background:linear-gradient(to bottom,rgba(245,243,239,.06),rgba(249,239,227,.20))}
 .quiet-hero-tagline{color:#0A1420;font-weight:500;text-shadow:0 1px 8px rgba(245,243,239,.7)}
 .brand{border:0!important;border-radius:0!important;padding:0!important}
