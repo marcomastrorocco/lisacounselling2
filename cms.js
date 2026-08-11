@@ -26,7 +26,14 @@ function editableTextNodes() {
 }
 
 function editableImages() {
-  return [...document.querySelectorAll('main img')]
+  const images = [...document.querySelectorAll('main img')]
+  const namedImages = images.filter((image) => image.dataset.cmsImageKey)
+
+  if (namedImages.length) {
+    return new Map(namedImages.map((image) => [image.dataset.cmsImageKey, image]))
+  }
+
+  return new Map(images.map((image, index) => [`image-${index}`, image]))
 }
 
 function repairEncodingArtifacts(value) {
@@ -92,8 +99,7 @@ function applyPage(page) {
 
   const images = editableImages()
   for (const block of page.images || []) {
-    const index = Number(block.key?.replace('image-', ''))
-    const image = images[index]
+    const image = images.get(block.key)
     if (!image || !block.imageUrl) continue
     image.src = `${block.imageUrl}?auto=format&fit=crop&w=1800&q=82`
     image.srcset = ''
