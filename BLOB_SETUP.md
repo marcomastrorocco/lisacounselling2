@@ -112,18 +112,20 @@ the deployment invalidates every cookie at once if that is ever needed.
 
 ## Two things to know
 
-**Some of the console's own files are public on the live site.** Vercel answers
-from a static file before a request ever reaches the function, so `admin/app.js`,
-`admin/app.css` and `admin/editor.html` are served straight off the CDN with no
-guard in front of them. `/admin/` itself is not — that one reaches the function
-and is guarded, which is why `admin/**` is bundled into the function through
-`includeFiles` in `vercel.json`. Remove that and the console's front door 404s.
+**The console's own files are public on the live site.** Vercel answers from a
+static file before a request ever reaches the function, so everything under
+`/admin/` comes straight off the CDN with no guard in front of it. Locally there
+is no CDN and `lib/handler.js` guards all of it — a difference worth knowing
+about but not worth chasing.
 
-Locally there is no CDN, so `lib/handler.js` guards all of them. The difference
-is worth knowing about but not worth chasing: those files are an empty shell.
-Every piece of content arrives over `/api/*`, and every one of those routes needs
-the session cookie. Someone who opens the console signed out is bounced to the
-sign-in page before anything loads.
+Nothing is exposed by it. Those files are an empty shell: every piece of content
+arrives over `/api/*`, every one of those routes needs the session cookie, and
+`admin/app.js` sends anyone who gets a 401 to the sign-in page. Signed out, the
+console loads and immediately bounces.
+
+`admin/**` is still bundled into the function by `includeFiles` in `vercel.json`,
+which is what the handler's own `/admin/` branch reads. On Vercel the CDN gets
+there first, so it is a fallback rather than the live path.
 
 **Rate limiting is best effort.** Each function instance counts failed sign-ins
 separately, so five wrong guesses lock out one instance rather than all of them.
