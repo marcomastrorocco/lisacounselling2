@@ -1,1 +1,0 @@
-import{t as e}from"./static-BXDRqv-z.mjs";const t=e();export default t;export const prerender=t.prerender;export const renderToReadableStream=t.renderToReadableStream;export const resume=t.resume;export const resumeAndPrerender=t.resumeAndPrerender;export const version=t.version;

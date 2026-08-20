@@ -1,0 +1,45 @@
+[
+  {
+    "id": "home",
+    "label": "Home",
+    "file": "index.html",
+    "path": "/",
+    "locked": true
+  },
+  {
+    "id": "about",
+    "label": "About",
+    "file": "about/index.html",
+    "path": "/about/"
+  },
+  {
+    "id": "help",
+    "label": "How I Can Help",
+    "file": "how-i-can-help/index.html",
+    "path": "/how-i-can-help/"
+  },
+  {
+    "id": "approach",
+    "label": "My Approach",
+    "file": "approach/index.html",
+    "path": "/approach/"
+  },
+  {
+    "id": "violence",
+    "label": "Domestic & Family Violence",
+    "file": "domestic-family-violence/index.html",
+    "path": "/domestic-family-violence/"
+  },
+  {
+    "id": "contact",
+    "label": "Contact",
+    "file": "contact/index.html",
+    "path": "/contact/"
+  },
+  {
+    "id": "privacy",
+    "label": "Privacy Policy",
+    "file": "privacy/index.html",
+    "path": "/privacy/"
+  }
+]

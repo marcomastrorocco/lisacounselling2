@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light">
+<title>Sign in — SPES Console</title>
+<link rel="icon" href="/admin/favicon.ico">
+<link rel="stylesheet" href="/admin/app.css">
+</head>
+<body class="login-page">
+<main class="login-card">
+  <div class="login-brand">
+    <span class="brand-word">spes</span>
+    <span class="brand-rule">Counselling</span>
+  </div>
+  <p class="profile-rule" aria-hidden="true">◇</p>
+
+  <h1 class="login-title">Website Console</h1>
+  <p class="login-sub">Sign in to manage the pages, images and content of your site.</p>
+
+  <form id="login-form" novalidate>
+    <div class="login-field">
+      <label for="password">Password</label>
+      <div class="login-input">
+        <input id="password" type="password" autocomplete="current-password" autofocus required spellcheck="false">
+        <button class="reveal" id="reveal" type="button" aria-pressed="false" aria-label="Show password">Show</button>
+      </div>
+      <p class="login-caps" id="caps" hidden>Caps Lock is on</p>
+    </div>
+
+    <p class="login-error" id="login-error" role="alert" hidden></p>
+
+    <button class="btn primary login-submit" id="login-button" type="submit">Sign in</button>
+  </form>
+
+  <p class="login-foot">
+    <span class="dot" aria-hidden="true"></span>
+    Local console — it runs only on this computer and is never published with the website.
+  </p>
+</main>
+<script src="/admin/login.js"></script>
+</body>
+</html>

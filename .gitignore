@@ -1,0 +1,2 @@
+# Local console state — never commit the password hash.
+admin/auth.json

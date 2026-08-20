@@ -1,385 +1,243 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"><meta content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" name="viewport"><meta content="noindex" name="robots"><meta content="same-origin" name="referrer"><link href="/static/favicon.ico" rel="icon" sizes="any"><link href="/static/favicon.svg" rel="icon" type="image/svg+xml"><link href="/static/apple-touch-icon.png" rel="apple-touch-icon"><link href="/static/manifest.webmanifest" rel="manifest"><title>Sanity Studio</title><script>
-;(function () {
-  var _caughtErrors = []
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light">
+<title>SPES Console — Website Operations</title>
+<link rel="icon" href="/admin/favicon.ico">
+<link rel="stylesheet" href="/admin/app.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <span class="brand-word">spes</span>
+      <span class="brand-rule">Counselling</span>
+    </div>
 
-  var errorChannel = (function () {
-    var subscribers = []
+    <section class="profile" aria-label="Signed-in account">
+      <button class="profile-edit" id="profile-edit" type="button" aria-label="Edit your profile" title="Edit your profile">✎</button>
+      <span class="avatar-wrap">
+        <span class="avatar" id="profile-avatar" aria-hidden="true"></span>
+        <span class="avatar-state" title="Signed in"></span>
+      </span>
+      <div class="profile-id">
+        <p class="profile-name" id="profile-name">—</p>
+        <p class="profile-rule" aria-hidden="true">◇</p>
+        <p class="profile-role" id="profile-credential"></p>
+        <p class="profile-tag" id="profile-role"></p>
+      </div>
+      <dl class="profile-meta">
+        <div><dt>Pages managed</dt><dd class="num" id="profile-pages">—</dd></div>
+        <div><dt>Media files</dt><dd class="num" id="profile-media">—</dd></div>
+        <div><dt>Last edit</dt><dd class="num" id="profile-edited">—</dd></div>
+      </dl>
+    </section>
 
-    function publish(msg) {
-      for (var i = 0; i < subscribers.length; i += 1) {
-        subscribers[i](msg)
-      }
-    }
+    <div class="rail-group">
+      <p class="eyebrow">Operations</p>
+      <nav id="nav-main"></nav>
+    </div>
 
-    function subscribe(subscriber) {
-      subscribers.push(subscriber)
+    <div class="rail-group">
+      <p class="eyebrow">Quick edit</p>
+      <nav id="nav-pages"></nav>
+    </div>
 
-      return function () {
-        var idx = subscribers.indexOf(subscriber)
+    <div class="rail-foot">
+      <span class="pill"><i class="dot live" id="link-dot"></i> <span id="link-state">Connecting</span></span>
+      <dl>
+        <dt>Endpoint</dt><dd>127.0.0.1:8000</dd>
+        <dt>Session</dt><dd id="uptime">00:00</dd>
+        <dt>Scope</dt><dd>Local only</dd>
+      </dl>
+      <button class="btn small rail-signout" id="sign-out" type="button">Sign out</button>
+    </div>
+  </aside>
 
-        if (idx > -1) {
-          subscribers.splice(idx, 1)
-        }
-      }
-    }
+  <main class="main">
+    <header class="topbar">
+      <p class="crumbs">SPES <span class="sep" aria-hidden="true">/</span> <b id="crumb">Overview</b></p>
+      <button class="omni" id="omni" type="button" aria-keyshortcuts="Control+K" aria-label="Search pages, images and actions">
+        <span class="omni-icon" aria-hidden="true">⌕</span>
+        <span class="omni-text">Search <b>pages, images &amp; actions</b>…</span>
+        <kbd aria-hidden="true">Ctrl K</kbd>
+      </button>
+      <div class="top-right">
+        <span class="pill" id="health-pill"><i class="dot" id="health-dot"></i> <span id="health-state">Scanning</span></span>
+        <span class="clock num" id="clock">--:--:--</span>
+      </div>
+    </header>
 
-    return {publish, subscribe, subscribers}
-  })()
+    <section class="view" id="view-overview" aria-labelledby="overview-title">
+      <div class="view-head">
+        <div>
+          <p class="eyebrow">Live site telemetry</p>
+          <h1 id="overview-title">Website Overview</h1>
+          <p>Everything below is measured from the real files in this project — nothing is estimated.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" data-go="#/media" type="button">Media library</button>
+          <button class="btn primary" data-go="#/edit/home" type="button">Edit website</button>
+        </div>
+      </div>
+      <div id="overview-body"></div>
+    </section>
 
-  // NOTE: Store the error channel instance in the global scope so that the application can
-  // access it and subscribe to errors.
-  window.__sanityErrorChannel = {
-    subscribe: errorChannel.subscribe,
-  }
+    <section class="view" id="view-pages" hidden aria-labelledby="pages-title">
+      <div class="view-head">
+        <div>
+          <p class="eyebrow">Content inventory</p>
+          <h1 id="pages-title">Pages</h1>
+          <p>Open any page to change its wording, search metadata or images — or add a new one.</p>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="add-page" type="button">Add a page</button>
+        </div>
+      </div>
+      <div id="pages-body"></div>
+    </section>
 
-  function _nextTick(callback) {
-    setTimeout(callback, 0)
-  }
+    <section class="view" id="view-media" hidden aria-labelledby="media-title">
+      <div class="view-head">
+        <div>
+          <p class="eyebrow">Asset store</p>
+          <h1 id="media-title">Media Library</h1>
+          <p>Every image self-hosted under <code>/assets</code>. Replace any of them from a page editor.</p>
+        </div>
+      </div>
+      <div id="media-body"></div>
+    </section>
 
-  function _handleError(error, params) {
-    _nextTick(function () {
-      // - If there are error channel subscribers, then we notify them (no console error).
-      // - If there are no subscribers, then we log the error to the console and render the error overlay.
-      if (errorChannel.subscribers.length) {
-        errorChannel.publish({error, params})
-      } else {
-        console.error(error)
+    <section class="view" id="view-health" hidden aria-labelledby="health-title">
+      <div class="view-head">
+        <div>
+          <p class="eyebrow">Pre-launch diagnostics</p>
+          <h1 id="health-title">Site Health</h1>
+          <p>Each page is checked for title length, search description, heading structure and image alt text.</p>
+        </div>
+      </div>
+      <div id="health-body"></div>
+    </section>
 
-        _renderErrorOverlay(error, params)
-      }
-    })
-  }
+    <section class="view" id="view-editor" hidden aria-labelledby="editor-title">
+      <div class="view-head">
+        <div>
+          <p class="eyebrow">Content editor</p>
+          <h1 id="editor-title">Edit page</h1>
+          <p id="editor-note">Change the fields, then press Save changes. The live site updates immediately.</p>
+        </div>
+        <div class="actions">
+          <a class="btn" id="editor-view-link" href="/" target="_blank" rel="noopener">Open page ↗</a>
+          <button class="btn" data-go="#/pages" type="button">All pages</button>
+        </div>
+      </div>
+      <div class="card frame-card"><iframe id="editor-frame" title="Page content editor"></iframe></div>
+    </section>
+  </main>
+</div>
 
-  var ERROR_BOX_STYLE = [
-    'background: #fff',
-    'border-radius: 6px',
-    'box-sizing: border-box',
-    'color: #121923',
-    'flex: 1',
-    "font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue','Liberation Sans',Helvetica,Arial,system-ui,sans-serif",
-    'font-size: 16px',
-    'line-height: 21px',
-    'margin: 0 auto',
-    'max-width: 960px',
-    'max-height: 90dvh',
-    'overflow: auto',
-    'padding: 20px',
-    'width: 100%',
-  ].join(';')
+<div class="backdrop" id="palette" hidden>
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+    <input id="palette-input" type="text" placeholder="Jump to a page, image or action…" autocomplete="off" spellcheck="false">
+    <ul id="palette-list" role="listbox" aria-label="Results"></ul>
+  </div>
+</div>
 
-  var ERROR_CODE_STYLE = [
-    'color: #972E2A',
-    "font-family: -apple-system-ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace",
-    'font-size: 13px',
-    'line-height: 17px',
-    'margin: 0',
-  ].join(';')
+<div class="backdrop" id="profile-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pf-title">
+    <header class="sheet-head">
+      <h2 id="pf-title">Your profile</h2>
+      <button class="toggle" data-close="profile-sheet" type="button">Close</button>
+    </header>
+    <div class="sheet-body">
+      <div class="photo-row">
+        <span class="photo-preview" id="pf-preview" aria-hidden="true"></span>
+        <div>
+          <div class="photo-actions">
+            <label class="upload">Upload photo<input type="file" id="pf-file" accept="image/png,image/jpeg,image/webp"></label>
+            <button class="btn small" id="pf-clear" type="button">Remove</button>
+          </div>
+          <p class="hint">A square photo works best — it is cropped to a circle. Stored in <code>/assets/uploads</code>.</p>
+        </div>
+      </div>
+      <div class="field"><label for="pf-name">Name</label><input id="pf-name" type="text" maxlength="120" autocomplete="off"></div>
+      <div class="field"><label for="pf-credential">Credential</label><input id="pf-credential" type="text" maxlength="120" autocomplete="off"></div>
+      <div class="field"><label for="pf-role">Role</label><input id="pf-role" type="text" maxlength="120" autocomplete="off"></div>
+    </div>
+    <footer class="sheet-foot">
+      <span class="status" id="pf-status"></span>
+      <button class="btn" data-close="profile-sheet" type="button">Cancel</button>
+      <button class="btn primary" id="pf-save" type="button">Save profile</button>
+    </footer>
+  </div>
+</div>
 
-  function _renderErrorOverlay(error, params) {
-    var errorElement = document.querySelector('#__sanityError') || document.createElement('div')
-    var colno = params.event.colno
-    var lineno = params.event.lineno
-    var filename = params.event.filename
+<div class="backdrop" id="new-page-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="np-title">
+    <header class="sheet-head">
+      <h2 id="np-title">Add a page</h2>
+      <button class="toggle" data-close="new-page-sheet" type="button">Close</button>
+    </header>
+    <div class="sheet-body">
+      <div class="field">
+        <label for="np-label">Page name</label>
+        <input id="np-label" type="text" maxlength="70" autocomplete="off" placeholder="Fees &amp; Rebates">
+        <p class="hint">Shown as the heading, the browser title and the navigation link.</p>
+      </div>
+      <div class="field">
+        <label for="np-slug">Web address</label>
+        <input id="np-slug" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="fees-and-rebates">
+        <p class="hint">Your page will live at <b id="np-preview">/…/</b></p>
+      </div>
+      <div class="field">
+        <label for="np-description">Google description <span class="tag">optional</span></label>
+        <textarea id="np-description" maxlength="200" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label for="np-intro">Opening paragraph <span class="tag">optional</span></label>
+        <textarea id="np-intro" maxlength="400" rows="3"></textarea>
+      </div>
+      <label class="check-row">
+        <input id="np-nav" type="checkbox" checked>
+        <span>Add a link in the site menu and footer</span>
+      </label>
+    </div>
+    <footer class="sheet-foot">
+      <span class="status" id="np-status"></span>
+      <button class="btn" data-close="new-page-sheet" type="button">Cancel</button>
+      <button class="btn primary" id="np-create" type="button">Create page</button>
+    </footer>
+  </div>
+</div>
 
-    errorElement.id = '__sanityError'
-    errorElement.innerHTML = [
-      '<div style="' + ERROR_BOX_STYLE + '">',
-      '<div style="font-weight: 700;">Uncaught error: ' + error.message + '</div>',
-      '<div style="color: #515E72; font-size: 13px; line-height: 17px; margin: 10px 0;">' +
-        filename +
-        ':' +
-        lineno +
-        ':' +
-        colno +
-        '</div>',
-      '<pre style="' + ERROR_CODE_STYLE + '">' + error.stack + '</pre>',
-      '</div>',
-    ].join('')
+<div class="backdrop" id="delete-page-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dp-title">
+    <header class="sheet-head">
+      <h2 id="dp-title">Delete this page?</h2>
+      <button class="toggle" data-close="delete-page-sheet" type="button">Close</button>
+    </header>
+    <div class="sheet-body">
+      <p class="danger-note" id="dp-summary"></p>
+      <ul class="danger-list" id="dp-effects"></ul>
+      <div class="field">
+        <label for="dp-confirm">Type <b id="dp-expected"></b> to confirm</label>
+        <input id="dp-confirm" type="text" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+    <footer class="sheet-foot">
+      <span class="status" id="dp-status"></span>
+      <button class="btn" data-close="delete-page-sheet" type="button">Cancel</button>
+      <button class="btn danger" id="dp-delete" type="button" disabled>Delete page</button>
+    </footer>
+  </div>
+</div>
 
-    errorElement.style.position = 'fixed'
-    errorElement.style.zIndex = 1000000
-    errorElement.style.top = 0
-    errorElement.style.left = 0
-    errorElement.style.right = 0
-    errorElement.style.bottom = 0
-    errorElement.style.padding = '20px'
-    errorElement.style.background = 'rgba(16,17,18,0.66)'
-    errorElement.style.display = 'flex'
-    errorElement.style.alignItems = 'center'
-    errorElement.style.justifyContent = 'center'
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
-    document.body.appendChild(errorElement)
-  }
-
-  // NOTE:
-  // Yes – we're attaching 2 error listeners below 👀
-  // This is because React makes the same error throw twice (in development mode).
-  // See: https://github.com/facebook/react/issues/10384
-
-  // Error listener #1
-  window.onerror = function (event, source, lineno, colno, error) {
-    _nextTick(function () {
-      if (_caughtErrors.indexOf(error) !== -1) return
-
-      _caughtErrors.push(error)
-
-      _handleError(error, {
-        event,
-        lineno,
-        colno,
-        source,
-      })
-
-      _nextTick(function () {
-        var idx = _caughtErrors.indexOf(error)
-
-        if (idx > -1) _caughtErrors.splice(idx, 1)
-      })
-    })
-
-    // IMPORTANT: this callback must return `true` to prevent the error from being rendered in
-    // the browser’s console.
-    return true
-  }
-
-  // Error listener #2
-  window.addEventListener('error', function (event) {
-    if (_caughtErrors.indexOf(event.error) !== -1) return true
-
-    _caughtErrors.push(event.error)
-
-    _handleError(event.error, {
-      event,
-      lineno: event.lineno,
-      colno: event.colno,
-    })
-
-    _nextTick(function () {
-      _nextTick(function () {
-        var idx = _caughtErrors.indexOf(event.error)
-
-        if (idx > -1) _caughtErrors.splice(idx, 1)
-      })
-    })
-
-    return true
-  })
-})()
-</script><style>
-  @font-face {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-Regular.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: italic;
-    font-weight: 400;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-Italic.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-Medium.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: italic;
-    font-weight: 500;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-MediumItalic.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-SemiBold.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: italic;
-    font-weight: 600;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-SemiBoldItalic.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-Bold.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: italic;
-    font-weight: 700;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-BoldItalic.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-ExtraBold.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: italic;
-    font-weight: 800;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-ExtraBoldItalic.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-Black.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: Inter;
-    font-style: italic;
-    font-weight: 900;
-    font-display: swap;
-    src: url("https://studio-static.sanity.io/Inter-BlackItalic.woff2") format("woff2");
-  }
-  html {
-    @media (prefers-color-scheme: dark) {
-      background-color: #13141b;
-    }
-    @media (prefers-color-scheme: light) {
-      background-color: #ffffff;
-    }
-  }
-  html,
-  body,
-  #sanity {
-    height: 100%;
-  }
-  body {
-    margin: 0;
-    -webkit-font-smoothing: antialiased;
-  }
-</style><script type="application/json" id="__imports">{"imports":{"react-dom/client":"/vendor/react-dom/client-B2LyRlsH.mjs","react-dom":"/vendor/react-dom/index-6ENZ9LRZ.mjs","react-dom/package.json":"/vendor/react-dom/package.json-C6c3zOhY.mjs","react-dom/server":"/vendor/react-dom/server-mrSNJuPd.mjs","react-dom/server.browser":"/vendor/react-dom/server.browser-C2-YMCkQ.mjs","react-dom/static":"/vendor/react-dom/static-BXDRqv-z.mjs","react-dom/static.browser":"/vendor/react-dom/static.browser-ieVM4XwH.mjs","react/compiler-runtime":"/vendor/react/compiler-runtime-BVhb7TJd.mjs","react":"/vendor/react/index-j4TbzLnM.mjs","react/jsx-dev-runtime":"/vendor/react/jsx-dev-runtime-DE3tgJ9y.mjs","react/jsx-runtime":"/vendor/react/jsx-runtime-VMk0Qk41.mjs","react/package.json":"/vendor/react/package.json-BUqvnIw7.mjs","styled-components":"/vendor/styled-components/index-b1ZUrU4k.mjs","styled-components/package.json":"/vendor/styled-components/package.json-CM8Qir_j.mjs","sanity":"https://sanity-cdn.com/v1/modules/sanity/default/%5E6.5.0/t1786598884","sanity/":"https://sanity-cdn.com/v1/modules/sanity/default/%5E6.5.0/t1786598884/","@sanity/vision":"https://sanity-cdn.com/v1/modules/@sanity__vision/default/%5E6.5.0/t1786598884","@sanity/vision/":"https://sanity-cdn.com/v1/modules/@sanity__vision/default/%5E6.5.0/t1786598884/"},"css":["https://sanity-cdn.com/v1/modules/sanity/default/%5E6.5.0/t1786598884/index.css","https://sanity-cdn.com/v1/modules/@sanity__vision/default/%5E6.5.0/t1786598884/index.css"]}</script><script>
-  // auto-generated script to add import map with timestamp
-  const importsJson = document.getElementById('__imports')?.textContent;
-  const { imports = {}, css = [], ...rest } = importsJson ? JSON.parse(importsJson) : {};
-  const importMapEl = document.createElement('script');
-  importMapEl.type = 'importmap';
-  const newTimestamp = `/t${Math.floor(Date.now() / 1000)}`;
-
-  function isSanityCdnHost(hostname) {
-    return /^sanity-cdn\.[a-zA-Z]+$/.test(hostname);
-  }
-
-  function isSanityCdnUrl(urlStr) {
-    try {
-      return isSanityCdnHost(new URL(urlStr).hostname);
-    } catch {
-      return false;
-    }
-  }
-
-  function replaceTimestamp(urlStr) {
-    try {
-      const url = new URL(urlStr);
-      if (isSanityCdnHost(url.hostname)) {
-        url.pathname = url.pathname.replace(/\/t\d+/, newTimestamp);
-      }
-      return url.toString();
-    } catch {
-      return urlStr;
-    }
-  }
-
-  importMapEl.textContent = JSON.stringify({
-    imports: Object.fromEntries(
-      Object.entries(imports).map(([specifier, path]) => [specifier, replaceTimestamp(path)])
-    ),
-    ...rest,
-  });
-  document.head.appendChild(importMapEl);
-
-  // Creates <link rel="stylesheet"> tags with fresh timestamps.
-  for (const cssUrl of css) {
-    const linkEl = document.createElement('link');
-    linkEl.rel = 'stylesheet';
-    linkEl.href = replaceTimestamp(cssUrl);
-    document.head.appendChild(linkEl);
-  }
-
-  // The CDN serves the `sanity` module via a cross-origin 302
-  // (sanity-cdn.com -> modules.sanity-cdn.com). WebKit mishandles a
-  // `modulepreload` that follows a cross-origin redirect: it forces the CORS
-  // credentials flag true even for `crossorigin="anonymous"`, then rejects the
-  // redirect because the CDN sends no `Access-Control-Allow-Credentials`,
-  // which blanks the studio. (This is why these hints were reverted; see
-  // PR #1400.)
-  //
-  // `preconnect` only warms a socket; it never follows the redirect or fetches
-  // the module, so it is safe in every engine and runs unconditionally.
-  const firstCdnImport = Object.values(imports).find(isSanityCdnUrl);
-
-  if (firstCdnImport) {
-    const preconnectEl = document.createElement('link');
-    preconnectEl.rel = 'preconnect';
-    preconnectEl.href = new URL(firstCdnImport).origin;
-    // Module fetches are CORS; without crossorigin the warmed socket is not reused.
-    preconnectEl.crossOrigin = 'anonymous';
-    document.head.appendChild(preconnectEl);
-  }
-
-  // `modulepreload` is the hint that follows the redirect and can blank the
-  // studio in WebKit, so it is gated behind a positive allowlist: it runs only
-  // for engines confirmed to handle the cross-origin redirect, i.e. Chromium or
-  // Gecko. Every Chromium variant (Edge, Opera, Samsung Internet, ...) carries
-  // the `Chrome` token, so matching `Chrom(e|ium)|Firefox` covers them without
-  // enumerating brands. The iOS device-name exclusion is the hard guard for the
-  // brick-prone platform: every iOS browser is WebKit regardless of brand, and
-  // iOS in-app webviews carry messy UAs, so nothing on an iOS device is ever
-  // treated as safe. Anything unrecognised falls through to no preload, costing
-  // a missed download rather than bricking the studio.
-  const userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent || '';
-  const isKnownSafeEngine =
-    !/\b(iPad|iPhone|iPod)\b/.test(userAgent) && /Chrom(e|ium)|Firefox/.test(userAgent);
-
-  // The href reuses replaceTimestamp so it matches the importmap entry exactly;
-  // a stale timestamp here would double-fetch the largest chunk.
-  const sanityModuleUrl = imports['sanity'];
-  if (isKnownSafeEngine && typeof sanityModuleUrl === 'string' && isSanityCdnUrl(sanityModuleUrl)) {
-    const preloadEl = document.createElement('link');
-    preloadEl.rel = 'modulepreload';
-    preloadEl.href = replaceTimestamp(sanityModuleUrl);
-    // Must match the preconnect's credentials mode, otherwise the browser
-    // treats them as separate connections and the warmed cross-origin socket
-    // is not reused for this fetch.
-    preloadEl.crossOrigin = 'anonymous';
-    document.head.appendChild(preloadEl);
-  }
-</script><script src="https://core.sanity-cdn.com/bridge.js" async type="module" data-sanity-core></script>
-</head><body><div id="sanity"></div><script src="/static/sanity-ByITIrii.js" type="module"></script><noscript><div class="sanity-app-no-js__root"><div class="sanity-app-no-js__content"><style type="text/css">
-.sanity-app-no-js__root {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background: #fff;
-}
-
-.sanity-app-no-js__content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  font-family: helvetica, arial, sans-serif;
-}
-</style><h1>JavaScript disabled</h1><p>Please <a href="https://www.enable-javascript.com/">enable JavaScript</a> in your browser and reload the page to proceed.</p></div></div></noscript></body></html>
+<script src="/admin/app.js"></script>
+</body>
+</html>
