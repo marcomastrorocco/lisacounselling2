@@ -1,0 +1,15 @@
+{
+  "name": "spes-counselling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SPES Counselling website and its self-hosted admin console",
+  "scripts": {
+    "dev": "node local-server.js",
+    "seed": "node scripts/seed-blob.js",
+    "test": "node scripts/test-console.js",
+    "reset-password": "node scripts/reset-password.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.0"
+  }
+}

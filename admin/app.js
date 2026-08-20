@@ -468,6 +468,9 @@ function openProfileSheet() {
   $('pf-role').value = draft.role || ''
   face($('pf-preview'), draft)
   setSheetStatus('')
+  // Never leave a typed password sitting in a reopened sheet.
+  for (const id of ['pw-current', 'pw-next', 'pw-confirm']) $(id).value = ''
+  setPasswordStatus('')
   $('profile-sheet').hidden = false
   $('pf-name').focus()
 }
@@ -512,6 +515,36 @@ async function saveProfile() {
     toast('Profile updated')
   } catch (error) { setSheetStatus(error.message, 'error') }
   $('pf-save').disabled = false
+}
+
+function setPasswordStatus(text, tone = '') {
+  const node = $('pw-status')
+  node.textContent = text
+  tone ? node.dataset.tone = tone : delete node.dataset.tone
+}
+
+/* The current password is asked for as well as the session, so a console left
+   open on a shared screen cannot be used to lock its owner out. */
+async function changePassword() {
+  const current = $('pw-current').value
+  const next = $('pw-next').value
+  if (!current) return setPasswordStatus('Enter your current password.', 'error')
+  if (next !== $('pw-confirm').value) return setPasswordStatus('The two new passwords do not match.', 'error')
+
+  $('pw-save').disabled = true
+  setPasswordStatus('Changing…')
+  try {
+    const result = await api('/api/password', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({current, next}),
+    })
+    if (result.error) throw new Error(result.error)
+    for (const id of ['pw-current', 'pw-next', 'pw-confirm']) $(id).value = ''
+    setPasswordStatus('')
+    toast('Password changed')
+  } catch (error) { setPasswordStatus(error.message, 'error') }
+  $('pw-save').disabled = false
 }
 
 /* ---------- chrome ---------- */
@@ -618,6 +651,7 @@ document.addEventListener('click', event => {
   }
   if (event.target.closest('#profile-edit')) return openProfileSheet()
   if (event.target.id === 'pf-save') return saveProfile()
+  if (event.target.id === 'pw-save') return changePassword()
   if (event.target.closest('#pf-clear')) {
     draft.photo = ''
     draft.name = $('pf-name').value

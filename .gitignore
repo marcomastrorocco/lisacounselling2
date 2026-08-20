@@ -1,2 +1,13 @@
 # Local console state — never commit the password hash.
 admin/auth.json
+
+# Secrets — the Blob token and anything else the local console needs.
+.env
+.env.local
+.env*.local
+
+node_modules/
+.vercel/
+
+# The live passwords, written for copying into Vercel. Never commit.
+LIVE-SECRETS.txt

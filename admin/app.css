@@ -815,6 +815,17 @@ table.data td:first-child { text-align: left; color: var(--ink-2) }
 .sheet-body .field { box-shadow: none; padding: 0; border: 0; margin: 0 0 15px; background: transparent }
 .sheet-body .field:last-child { margin-bottom: 0 }
 
+/* Password sits under the profile fields in the same sheet, so it needs a rule
+   above it to read as a separate thing rather than a fourth detail. */
+.sheet-subhead {
+  margin: 26px 0 6px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font: 600 15px/1.2 var(--display);
+  color: var(--pine);
+}
+.sheet-subhead + .hint { margin: 0 0 15px }
+
 .photo-row {
   display: grid;
   grid-template-columns: 84px minmax(0, 1fr);

@@ -1,0 +1,25 @@
+# The console edits these, so they live in the Blob store and are served by the
+# function. A deployed copy would sit in front of it and never change.
+index.html
+about/
+approach/
+contact/
+domestic-family-violence/
+how-i-can-help/
+privacy/
+shell.js
+sitemap.xml
+admin/pages.json
+admin/profile.json
+
+# Local-only state and secrets.
+admin/auth.json
+.env
+.env.local
+.env*.local
+
+# The dev server and the one-off seed script are not part of the deployment.
+local-server.js
+scripts/
+LIVE-SECRETS.txt
+node_modules/

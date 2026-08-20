@@ -166,6 +166,16 @@
       <div class="field"><label for="pf-name">Name</label><input id="pf-name" type="text" maxlength="120" autocomplete="off"></div>
       <div class="field"><label for="pf-credential">Credential</label><input id="pf-credential" type="text" maxlength="120" autocomplete="off"></div>
       <div class="field"><label for="pf-role">Role</label><input id="pf-role" type="text" maxlength="120" autocomplete="off"></div>
+
+      <h3 class="sheet-subhead">Password</h3>
+      <p class="hint">This is the password for the live console. Changing it here takes effect straight away, everywhere.</p>
+      <div class="field"><label for="pw-current">Current password</label><input id="pw-current" type="password" autocomplete="current-password" maxlength="200"></div>
+      <div class="field"><label for="pw-next">New password</label><input id="pw-next" type="password" autocomplete="new-password" maxlength="200"></div>
+      <div class="field"><label for="pw-confirm">New password again</label><input id="pw-confirm" type="password" autocomplete="new-password" maxlength="200"></div>
+      <div class="photo-actions">
+        <button class="btn small" id="pw-save" type="button">Change password</button>
+        <span class="status" id="pw-status"></span>
+      </div>
     </div>
     <footer class="sheet-foot">
       <span class="status" id="pf-status"></span>
