@@ -141,7 +141,10 @@ month's text. So `lib/store.js` reads content from origin storage every time
 defence. Do not "optimise" those reads back onto the CDN.
 
 Caching happens one layer up instead, where it is measured in seconds and we
-control it: pages go out with `s-maxage=60`, so Vercel's edge may hold a version
-for up to a minute after a save. To make saves appear instantly for visitors,
-lower `PAGE_CACHE` in `lib/handler.js` — at the cost of running the function on
-every single page view.
+control it: `PAGE_CACHE` in `lib/handler.js` sends `s-maxage=5` and no
+`stale-while-revalidate`. Both halves of that matter. The first version used a
+minute with a five-minute grace period, which made the console feel broken —
+`stale-while-revalidate` lets the edge keep answering from the old copy while it
+fetches the new one, so a save could take well over a minute to show and read as
+a failure. Raise the number if the function is ever running too often, but leave
+the grace period off.
