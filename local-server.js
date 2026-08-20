@@ -75,6 +75,41 @@ function passwordMatches(password) {
   return candidate.length === stored.length && crypto.timingSafeEqual(candidate, stored)
 }
 
+/* ---------- Supabase sign-in ----------
+   Put your project URL and anon key in admin/supabase.json and the console signs
+   in against Supabase Auth instead of the local password above. The anon key is
+   built to be public; it is the Supabase user list that keeps the console shut,
+   not the secrecy of this file. Leave the file blank and the local password
+   stays in charge, so an unconfigured checkout still runs. */
+const supabaseFile = path.join(root, 'admin', 'supabase.json')
+
+function readSupabase() {
+  try {
+    const config = JSON.parse(fs.readFileSync(supabaseFile, 'utf8'))
+    const url = String(config.url || '').trim().replace(/\/+$/, '')
+    const anonKey = String(config.anonKey || '').trim()
+    const allowed = (Array.isArray(config.allowedEmails) ? config.allowedEmails : [])
+      .map(entry => String(entry).trim().toLowerCase()).filter(Boolean)
+    return url && anonKey ? {url, anonKey, allowed} : null
+  } catch { return null }
+}
+
+const supabase = readSupabase()
+
+/* Supabase is the only judge of whether an access token is real, unexpired and
+   still attached to a live user, so ask it rather than reading the token here. */
+async function supabaseUser(accessToken) {
+  if (!supabase || !/^[\w-]+\.[\w-]+\.[\w-]+$/.test(String(accessToken || ''))) return null
+  try {
+    const reply = await fetch(`${supabase.url}/auth/v1/user`, {
+      headers: {apikey: supabase.anonKey, Authorization: `Bearer ${accessToken}`},
+    })
+    if (!reply.ok) return null
+    const user = await reply.json()
+    return user && user.id ? user : null
+  } catch { return null }
+}
+
 function sessionToken(request) {
   return (/(?:^|;\s*)spes_session=([a-f0-9]{64})/.exec(request.headers.cookie || '') || [])[1]
 }
@@ -82,11 +117,19 @@ function sessionToken(request) {
 function signedIn(request) {
   const token = sessionToken(request)
   if (!token) return false
-  const expires = sessions.get(token)
-  if (!expires) return false
-  if (expires < Date.now()) { sessions.delete(token); return false }
+  const session = sessions.get(token)
+  if (!session) return false
+  if (session.expires < Date.now()) { sessions.delete(token); return false }
   return true
 }
+
+function startSession(email) {
+  const token = crypto.randomBytes(32).toString('hex')
+  sessions.set(token, {expires: Date.now() + SESSION_MS, email: email || ''})
+  return token
+}
+
+const sessionCookie = token => `spes_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_MS / 1000}`
 
 function sendWithCookie(response, status, body, cookie) {
   response.writeHead(status, {'Content-Type': 'application/json; charset=utf-8', 'Set-Cookie': cookie})
@@ -227,12 +270,13 @@ function listMedia(folder, publicPath = '/assets') {
 }
 
 // Everything the sign-in page itself needs, before any session exists.
-const openPaths = new Set(['/admin/login.html', '/admin/login.js', '/admin/app.css', '/admin/favicon.ico'])
+const openPaths = new Set(['/admin/login.html', '/admin/login.js', '/admin/app.css', '/admin/favicon.ico', '/admin/supabase.json'])
 
 http.createServer(async (request, response) => {
   const url = new URL(request.url, 'http://localhost')
 
   if (url.pathname === '/api/login' && request.method === 'POST') {
+    if (supabase) return send(response, 400, {error: 'This console signs in through Supabase — use your email address and password.'})
     const client = request.socket.remoteAddress || 'unknown'
     const locked = failures.get(client)
     if (locked && locked.until > Date.now()) {
@@ -246,9 +290,33 @@ http.createServer(async (request, response) => {
         return send(response, 401, {error: count >= 5 ? 'Too many attempts — wait a minute.' : 'That password is not right.'})
       }
       failures.delete(client)
-      const token = crypto.randomBytes(32).toString('hex')
-      sessions.set(token, Date.now() + SESSION_MS)
-      return sendWithCookie(response, 200, {ok: true}, `spes_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_MS / 1000}`)
+      return sendWithCookie(response, 200, {ok: true}, sessionCookie(startSession('')))
+    } catch (error) { return send(response, 400, {error: error.message}) }
+  }
+
+  /* The browser signs in with Supabase directly and then hands the access token
+     here, so every other route can keep trusting the same session cookie. */
+  if (url.pathname === '/api/session' && request.method === 'POST') {
+    if (!supabase) return send(response, 400, {error: 'Supabase is not set up on this server'})
+    const client = request.socket.remoteAddress || 'unknown'
+    const locked = failures.get(client)
+    if (locked && locked.until > Date.now()) {
+      return send(response, 429, {error: `Too many attempts — wait ${Math.ceil((locked.until - Date.now()) / 1000)} seconds.`})
+    }
+    try {
+      const body = await readBody(request)
+      const user = await supabaseUser(body.access_token)
+      /* The anon key is public, so a stray sign-up in Supabase would otherwise
+         be a way in. When allowedEmails is listed, nobody else gets a session. */
+      const welcome = user && (!supabase.allowed.length ||
+        supabase.allowed.includes(String(user.email || '').toLowerCase()))
+      if (!welcome) {
+        const count = (locked ? locked.count : 0) + 1
+        failures.set(client, {count, until: count >= 5 ? Date.now() + 60000 : 0})
+        return send(response, 401, {error: 'That sign-in could not be verified.'})
+      }
+      failures.delete(client)
+      return sendWithCookie(response, 200, {ok: true, email: user.email || ''}, sessionCookie(startSession(user.email)))
     } catch (error) { return send(response, 400, {error: error.message}) }
   }
 
