@@ -145,7 +145,9 @@ async function main() {
   console.log('\nThe published site')
   const home = await call('GET', '/')
   check('the home page is served from the store', home.status === 200 && home.text.includes('<h1>Home</h1>'), home.text.slice(0, 120))
-  check('the home page is cached briefly', /s-maxage=60/.test(home.headers['Cache-Control'] || ''))
+  check('the home page is cached briefly', /s-maxage=5\b/.test(home.headers['Cache-Control'] || ''), home.headers['Cache-Control'])
+  // The grace period is what made a saved page keep serving its old text.
+  check('no stale-while-revalidate on pages', !/stale-while-revalidate/.test(home.headers['Cache-Control'] || ''), home.headers['Cache-Control'])
   const newPage = await call('GET', '/fees/')
   check('the page just created is live', newPage.status === 200 && newPage.text.includes('Fees and Rebates'), newPage.text.slice(0, 160))
   check('a missing trailing slash redirects', (await call('GET', '/fees')).status === 308)
