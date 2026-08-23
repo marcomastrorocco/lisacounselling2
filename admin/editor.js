@@ -1,6 +1,6 @@
-/* Page editor — parses the live HTML into fields, writes it back through
-   /api/page. Grouped into Search listing / Page content / Images so the long
-   field list stays navigable. */
+/* Page editor — parses the live HTML into fields, shows the page beside them as
+   it is being changed, and writes it back through /api/page. Fields are grouped
+   into Search listing / Page content / Images so the long list stays navigable. */
 
 const params = new URLSearchParams(location.search)
 const pageId = params.get('page') || 'home'
@@ -8,7 +8,7 @@ if (params.get('embed') === '1') document.body.classList.add('embed')
 
 const $ = id => document.getElementById(id)
 const fields = $('fields'), statusLine = $('status'), saveButton = $('save')
-let model, dirty = false
+let model, page, dirty = false
 
 /* This page usually runs inside the dashboard's iframe, so an expired session has
    to move the whole window to sign-in, not just the frame. */
@@ -31,6 +31,115 @@ function markDirty() {
   setStatus('Unsaved changes', 'dirty')
 }
 
+/* Settings worth keeping between pages — and worth nobody's crash if the browser
+   declines to hand its storage over. */
+const remember = {
+  get(key, fallback) { try { return localStorage.getItem(key) || fallback } catch { return fallback } },
+  set(key, value) { try { localStorage.setItem(key, value) } catch { /* storage refused */ } },
+}
+
+/* ---------- the preview ----------
+   The frame loads the page's own address, which is the only way the stylesheet,
+   the shared header and footer, and every relative image path resolve as they
+   will for a visitor. What it then shows is not the saved page but the one being
+   edited: its <main> is replaced by the editor's copy, and `twins` records which
+   element in the frame answers to which element in the model. A keystroke then
+   patches one node — no re-render, no flicker, no scroll thrown away. */
+const preview = {
+  frame: $('preview-frame'),
+  stage: $('preview-stage'),
+  note: $('preview-note'),
+  twins: new Map(),
+  live: false,
+}
+
+const FOCUS_MARK = 'data-spes-focus'
+const gently = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const twinOf = node => preview.live ? preview.twins.get(node) : null
+
+function previewNote(text) {
+  preview.note.textContent = text || ''
+  preview.note.hidden = !text
+}
+
+function mountPreview(path) {
+  preview.live = false
+  preview.twins.clear()
+  $('preview-path').textContent = path
+  previewNote('Loading the page…')
+  /* A fresh query every time, so Reload really does fetch what the website is
+     serving rather than the copy the edge cached five seconds ago. */
+  preview.frame.src = `${path}?preview=${Date.now()}`
+}
+
+function graftPreview() {
+  const doc = preview.frame.contentDocument
+  if (!doc) throw new Error('the frame cannot be read')
+  const shown = doc.querySelector('main')
+  const mine = model && model.querySelector('main')
+  if (!shown || !mine) throw new Error('this page has no main section')
+
+  const copy = doc.importNode(mine, true)
+  shown.replaceWith(copy)
+
+  // A copy of the same tree, so position pairs the two sides up exactly.
+  const mineAll = [...mine.querySelectorAll('*')]
+  const copyAll = [...copy.querySelectorAll('*')]
+  preview.twins.clear()
+  mineAll.forEach((node, i) => preview.twins.set(node, copyAll[i]))
+
+  doc.head.insertAdjacentHTML('beforeend',
+    `<style>[${FOCUS_MARK}]{outline:2px solid #B98A3B;outline-offset:3px;border-radius:2px}</style>`)
+
+  /* A preview that wanders off to another page has stopped being a preview.
+     Links and forms still look and hover exactly as they will on the site. */
+  doc.addEventListener('click', event => {
+    const link = event.target.closest && event.target.closest('a')
+    if (link) event.preventDefault()
+  }, true)
+  doc.addEventListener('submit', event => event.preventDefault(), true)
+
+  preview.live = true
+  previewNote('')
+}
+
+preview.frame.addEventListener('load', () => {
+  try { graftPreview() }
+  catch (error) {
+    preview.live = false
+    previewNote(`The preview cannot be shown — ${error.message}. Editing and saving are unaffected.`)
+  }
+})
+
+/* Focus a field and the thing it changes is outlined and scrolled to. On a page
+   of forty paragraphs that is most of what makes a preview worth having. */
+let spotlit = null
+function spotlight(node) {
+  if (spotlit) { spotlit.removeAttribute(FOCUS_MARK); spotlit = null }
+  const target = node && twinOf(node)
+  if (!target) return
+  target.setAttribute(FOCUS_MARK, '')
+  spotlit = target
+  target.scrollIntoView({block: 'center', behavior: gently ? 'smooth' : 'auto'})
+}
+
+function showPreview(on) {
+  document.body.classList.toggle('preview-off', !on)
+  const button = $('preview-toggle')
+  button.setAttribute('aria-pressed', String(on))
+  button.textContent = on ? 'Hide preview' : 'Show preview'
+  remember.set('spes.preview', on ? 'on' : 'off')
+}
+
+function setPreviewWidth(mode) {
+  preview.stage.dataset.width = mode
+  $('width-wide').setAttribute('aria-pressed', String(mode === 'wide'))
+  $('width-narrow').setAttribute('aria-pressed', String(mode === 'narrow'))
+  remember.set('spes.preview-width', mode)
+}
+
+/* ---------- the fields ---------- */
+
 function group(title) {
   const section = document.createElement('section')
   section.className = 'field-group'
@@ -39,18 +148,39 @@ function group(title) {
   return section
 }
 
-function field(section, {tag, label, value, hint, multiline = true, onInput}) {
+/* Every edit is made twice: once to the model that will be saved, once to its
+   twin in the frame. `apply` is written so that one call does either. */
+function field(section, {tag, label, value, hint, multiline = true, node, apply, also}) {
   const wrap = document.createElement('div')
   wrap.className = 'field'
   wrap.dataset.search = `${label} ${value}`.toLowerCase()
   wrap.innerHTML = `<label><span class="tag">${tag}</span>${label}</label>`
   const input = document.createElement(multiline ? 'textarea' : 'input')
   input.value = value || ''
-  input.addEventListener('input', () => { onInput(input.value); markDirty() })
+  input.addEventListener('input', () => {
+    apply(node, input.value)
+    const other = twinOf(node)
+    if (other) apply(other, input.value)
+    if (also) also()
+    markDirty()
+  })
+  input.addEventListener('focus', () => spotlight(node))
+  input.addEventListener('blur', () => spotlight(null))
   wrap.append(input)
   if (hint) wrap.insertAdjacentHTML('beforeend', `<p class="hint">${hint}</p>`)
   section.append(wrap)
   return wrap
+}
+
+/* Inside a <picture> the browser takes the <source> and never looks at the
+   <img>, so an image swapped here would go on showing the old one. Dropping the
+   sources is what makes the field mean what it says. */
+function setSource(img, value) {
+  img.setAttribute('src', value)
+  const parent = img.parentElement
+  if (parent && parent.tagName === 'PICTURE') {
+    [...parent.querySelectorAll('source')].forEach(source => source.remove())
+  }
 }
 
 function imageField(section, index, img) {
@@ -61,13 +191,24 @@ function imageField(section, index, img) {
 
   const row = document.createElement('div')
   row.className = 'image-row'
-  const preview = document.createElement('img')
-  preview.className = 'preview'
-  preview.alt = ''
-  preview.src = img.getAttribute('src') || ''
+  const thumb = document.createElement('img')
+  thumb.className = 'preview'
+  thumb.alt = ''
+  thumb.src = img.getAttribute('src') || ''
   const source = document.createElement('input')
   source.value = img.getAttribute('src') || ''
-  source.addEventListener('input', () => { img.setAttribute('src', source.value); preview.src = source.value; markDirty() })
+
+  function useSource(value) {
+    setSource(img, value)
+    const other = twinOf(img)
+    if (other) setSource(other, value)
+    thumb.src = value
+    markDirty()
+  }
+
+  source.addEventListener('input', () => useSource(source.value))
+  source.addEventListener('focus', () => spotlight(img))
+  source.addEventListener('blur', () => spotlight(null))
 
   const upload = document.createElement('label')
   upload.className = 'upload'
@@ -89,30 +230,53 @@ function imageField(section, index, img) {
       const result = await api('/api/upload', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: file.name, data})})
       if (!result.url) throw new Error(result.error || 'Upload failed')
       source.value = result.url
-      preview.src = result.url
-      img.setAttribute('src', result.url)
-      markDirty()
+      useSource(result.url)
+      spotlight(img)
       setStatus('Image uploaded — press Save changes', 'dirty')
     } catch (error) { setStatus(error.message, 'error') }
     picker.value = ''
   })
 
   upload.append(picker)
-  row.append(preview, source, upload)
+  row.append(thumb, source, upload)
   wrap.append(row)
   section.append(wrap)
 
   field(section, {
     tag: 'alt', label: `Image ${index} — description for screen readers`, value: img.alt, multiline: false,
     hint: 'Describe what the image shows. Leave blank only for purely decorative images.',
-    onInput: value => img.alt = value,
+    node: img, apply: (target, value) => target.alt = value,
   })
+}
+
+/* The two search fields are the only ones the page preview cannot show, so they
+   get a preview of their own, in the place where they are edited. */
+function searchListing(section, path) {
+  const card = document.createElement('div')
+  card.className = 'serp'
+  card.innerHTML = '<span class="serp-url"></span><span class="serp-title"></span><span class="serp-desc"></span>'
+  const trail = path.replace(/^\/|\/$/g, '').split('/').filter(Boolean)
+  card.querySelector('.serp-url').textContent = ['spescounselling.com.au', ...trail].join(' › ')
+  section.append(card)
+
+  const titleLine = card.querySelector('.serp-title')
+  const descLine = card.querySelector('.serp-desc')
+  return function repaint() {
+    const title = model.querySelector('title')
+    const description = model.querySelector('meta[name="description"]')
+    const titleText = (title ? title.textContent : '').trim()
+    const descText = (description ? description.content : '').trim()
+    titleLine.textContent = titleText || 'No title yet'
+    titleLine.classList.toggle('serp-empty', !titleText)
+    descLine.textContent = descText || 'No description yet — Google will choose a sentence from the page instead.'
+    descLine.classList.toggle('serp-empty', !descText)
+  }
 }
 
 async function load() {
   // The rail is built from the live registry so pages added in this session appear.
   const registry = await api('/api/pages')
-  const page = (Array.isArray(registry) ? registry : []).find(item => item.id === pageId)
+  page = (Array.isArray(registry) ? registry : []).find(item => item.id === pageId)
   if (!page) throw new Error('That page is no longer in the site')
 
   $('pages').innerHTML = ''
@@ -135,10 +299,24 @@ async function load() {
   fields.innerHTML = ''
 
   const seo = group('Search listing — how this page appears on Google')
+  const repaintListing = searchListing(seo, page.path)
   const title = model.querySelector('title')
-  if (title) field(seo, {tag: 'title', label: 'Browser & Google title', value: title.textContent, multiline: false, hint: 'Aim for 15–65 characters.', onInput: value => title.textContent = value})
+  if (title) {
+    field(seo, {
+      tag: 'title', label: 'Browser & Google title', value: title.textContent, multiline: false,
+      hint: 'Aim for 15–65 characters.',
+      node: title, apply: (target, value) => target.textContent = value, also: repaintListing,
+    })
+  }
   const description = model.querySelector('meta[name="description"]')
-  if (description) field(seo, {tag: 'meta', label: 'Google description', value: description.content, hint: 'Aim for 50–160 characters.', onInput: value => description.content = value})
+  if (description) {
+    field(seo, {
+      tag: 'meta', label: 'Google description', value: description.content,
+      hint: 'Aim for 50–160 characters.',
+      node: description, apply: (target, value) => target.content = value, also: repaintListing,
+    })
+  }
+  repaintListing()
 
   const content = group('Page content')
   const nodes = [...model.querySelectorAll('main h1, main h2, main h3, main p, main li, main a.button')]
@@ -147,7 +325,7 @@ async function load() {
     field(content, {
       tag, label: node.textContent.trim().slice(0, 62) || `Item ${i + 1}`, value: node.innerHTML,
       multiline: tag !== 'h1' && tag !== 'h2' && tag !== 'h3',
-      onInput: value => node.innerHTML = value,
+      node, apply: (target, value) => target.innerHTML = value,
     })
   })
 
@@ -156,6 +334,9 @@ async function load() {
     const section = group('Images')
     images.forEach((img, i) => imageField(section, i + 1, img))
   }
+
+  // Only now is there a model for the frame to be grafted with.
+  mountPreview(page.path)
 
   dirty = false
   setStatus(`Ready — ${nodes.length} text fields, ${images.length} images`)
@@ -176,6 +357,13 @@ async function save() {
 }
 
 saveButton.addEventListener('click', save)
+$('preview-toggle').addEventListener('click', () => showPreview(document.body.classList.contains('preview-off')))
+$('preview-reload').addEventListener('click', () => { if (page) mountPreview(page.path) })
+$('width-wide').addEventListener('click', () => setPreviewWidth('wide'))
+$('width-narrow').addEventListener('click', () => setPreviewWidth('narrow'))
+showPreview(remember.get('spes.preview', 'on') !== 'off')
+setPreviewWidth(remember.get('spes.preview-width', 'wide') === 'narrow' ? 'narrow' : 'wide')
+
 $('filter').addEventListener('input', event => {
   const needle = event.target.value.trim().toLowerCase()
   document.querySelectorAll('.field').forEach(item => { item.hidden = Boolean(needle) && !item.dataset.search?.includes(needle) })
@@ -191,4 +379,5 @@ window.addEventListener('beforeunload', event => { if (dirty) event.preventDefau
 load().catch(error => {
   fields.innerHTML = `<div class="error-note"><b>Could not open this page.</b><br>${error.message}</div>`
   setStatus('Not loaded', 'error')
+  previewNote('There is no page to preview.')
 })

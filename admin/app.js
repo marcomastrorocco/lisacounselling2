@@ -359,7 +359,7 @@ function renderHealth() {
 
 function renderEditor(id) {
   $('editor-title').textContent = `Edit ${name(id)}`
-  $('editor-note').textContent = `${name(id)} · ${pathOf(id)} — change the fields, then press Save changes.`
+  $('editor-note').textContent = `${name(id)} · ${pathOf(id)} — change the fields, watch the page beside them, then press Save changes.`
   $('editor-view-link').href = pathOf(id)
   const frame = $('editor-frame')
   const src = `/admin/editor.html?embed=1&page=${encodeURIComponent(id)}`

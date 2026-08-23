@@ -21,23 +21,43 @@
     <nav id="pages"></nav>
   </aside>
 
-  <main class="editor-body">
-    <p class="eyebrow">Editing live files</p>
-    <h1 id="title">Edit page</h1>
-    <p class="intro">Change any field below, then press Save changes. Your website updates immediately.</p>
+  <div class="editor-split">
+    <main class="editor-body">
+      <p class="eyebrow">Editing live files</p>
+      <h1 id="title">Edit page</h1>
+      <p class="intro">Change any field below and watch the page beside it change with you. Nothing reaches the website until you press Save changes.</p>
 
-    <div class="editor-bar">
-      <input class="field-filter" id="filter" type="search" placeholder="Filter fields…" autocomplete="off">
-      <span class="status" id="status">Loading page…</span>
-      <span class="spacer"></span>
-      <button class="btn primary" id="save" type="button" disabled>Save changes <kbd>Ctrl S</kbd></button>
-    </div>
+      <div class="editor-bar">
+        <input class="field-filter" id="filter" type="search" placeholder="Filter fields…" autocomplete="off">
+        <span class="status" id="status">Loading page…</span>
+        <span class="spacer"></span>
+        <button class="btn small" id="preview-toggle" type="button" aria-pressed="true">Hide preview</button>
+        <button class="btn primary" id="save" type="button" disabled>Save changes <kbd>Ctrl S</kbd></button>
+      </div>
 
-    <form id="fields" autocomplete="off">
-      <div class="field"><div class="skeleton loading-line" style="width:38%"></div><div class="skeleton loading-line" style="height:60px"></div></div>
-      <div class="field"><div class="skeleton loading-line" style="width:52%"></div><div class="skeleton loading-line" style="height:60px"></div></div>
-    </form>
-  </main>
+      <form id="fields" autocomplete="off">
+        <div class="field"><div class="skeleton loading-line" style="width:38%"></div><div class="skeleton loading-line" style="height:60px"></div></div>
+        <div class="field"><div class="skeleton loading-line" style="width:52%"></div><div class="skeleton loading-line" style="height:60px"></div></div>
+      </form>
+    </main>
+
+    <section class="editor-preview" id="preview" aria-label="Live preview of this page">
+      <div class="preview-bar">
+        <span class="eyebrow">Live preview</span>
+        <code class="preview-path" id="preview-path">…</code>
+        <span class="spacer"></span>
+        <div class="preview-widths" role="group" aria-label="Preview width">
+          <button class="chip" id="width-wide" type="button" data-width="wide" aria-pressed="true">Desktop</button>
+          <button class="chip" id="width-narrow" type="button" data-width="narrow" aria-pressed="false">Phone</button>
+        </div>
+        <button class="btn small" id="preview-reload" type="button" title="Fetch the page again as the website is serving it">Reload</button>
+      </div>
+      <div class="preview-stage" id="preview-stage" data-width="wide">
+        <iframe id="preview-frame" title="The page as visitors see it"></iframe>
+        <p class="preview-note" id="preview-note" hidden></p>
+      </div>
+    </section>
+  </div>
 </div>
 
 <script src="/admin/editor.js"></script>

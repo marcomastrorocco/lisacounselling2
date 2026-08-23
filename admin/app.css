@@ -775,7 +775,8 @@ table.data td:first-child { text-align: left; color: var(--ink-2) }
 
 /* ---------- editor frame ---------- */
 .frame-card { padding: 0 }
-.frame-card iframe { display: block; width: 100%; height: calc(100vh - 220px); min-height: 520px; border: 0 }
+/* Tall enough that the editor's own two panes are both usable inside it. */
+.frame-card iframe { display: block; width: 100%; height: calc(100vh - 190px); min-height: 660px; border: 0 }
 
 /* ---------- overlays: command palette + profile sheet ---------- */
 .backdrop {
@@ -1133,9 +1134,13 @@ table.data td:first-child { text-align: left; color: var(--ink-2) }
   background: rgba(232, 240, 242, .9);
 }
 
-.editor-layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: calc(100vh - 64px) }
-.editor-rail { padding: 20px 14px; border-right: 1px solid var(--line); background: rgba(255, 255, 255, .5) }
-.editor-body { padding: 26px 32px 60px; max-width: 960px; width: 100% }
+/* Three panes that each scroll by themselves, so the preview holds still while
+   a long field list is scrolled past it — the whole point of putting them side
+   by side. The page itself never scrolls; the height is pinned to the window. */
+.editor-layout { display: flex; height: calc(100vh - 64px) }
+.editor-rail { flex: 0 0 232px; overflow: auto; padding: 20px 14px; border-right: 1px solid var(--line); background: rgba(255, 255, 255, .5) }
+.editor-split { flex: 1; min-width: 0; display: flex }
+.editor-body { flex: 1 1 52%; min-width: 380px; overflow: auto; padding: 26px 32px 60px }
 .editor-body > h1 { margin: 8px 0 6px; font: 600 28px/1.18 var(--display); color: var(--pine) }
 .editor-body > .intro { margin: 0 0 20px; color: var(--ink-3) }
 
@@ -1223,10 +1228,95 @@ table.data td:first-child { text-align: left; color: var(--ink-2) }
 .upload:hover { background: var(--ivory); border-color: var(--pine) }
 .upload input { display: none }
 
+/* ---------- the live preview ---------- */
+.editor-preview {
+  flex: 1 1 48%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .72);
+}
+
+.preview-bar .spacer { margin-left: auto }
+.preview-bar .chip { padding: 6px 12px; font-size: 11.5px }
+.preview-widths { display: flex; gap: 5px }
+.preview-path { font: 400 11.5px var(--mono); color: var(--ink-3) }
+
+.preview-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  overflow: auto;
+}
+
+.preview-stage iframe {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+/* A phone-width column, so the layout can be checked the way most people will
+   actually meet it. The page inside reflows; nothing reloads. */
+.preview-stage[data-width="narrow"] iframe { width: 390px; max-width: 100%; flex: none }
+
+.preview-note {
+  position: absolute;
+  inset: 14px;
+  display: grid;
+  place-content: center;
+  margin: 0;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--ink-3);
+  font: 400 13px/1.6 var(--sans);
+  text-align: center;
+}
+
+.preview-note[hidden] { display: none }
+
+/* Folded away, the fields get the room back — and a measure that still reads. */
+body.preview-off .editor-preview { display: none }
+body.preview-off .editor-body { flex: 1; max-width: 980px }
+
+/* ---------- the search listing, previewed where its fields are ---------- */
+.serp {
+  margin: 0 0 11px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.serp-url { display: block; font: 400 12px var(--sans); color: var(--ink-3) }
+.serp-title { display: block; margin: 3px 0 2px; font: 400 17px/1.3 var(--sans); color: #1A0DAB }
+.serp-desc { display: block; font: 400 12.5px/1.55 var(--sans); color: var(--ink-2) }
+.serp-empty { color: var(--ink-3); font-style: italic }
+
+/* ---------- embedded in the dashboard ---------- */
 body.embed { background: var(--surface) }
 body.embed .editor-top,
 body.embed .editor-rail { display: none }
-body.embed .editor-layout { grid-template-columns: minmax(0, 1fr); min-height: 100vh }
+body.embed .editor-layout { height: 100vh }
 body.embed .editor-body { padding: 20px 24px 44px }
 body.embed::before, body.embed::after { display: none }
 
@@ -1235,6 +1325,14 @@ body.embed::before, body.embed::after { display: none }
   .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)) }
   .split, .split-even { grid-template-columns: minmax(0, 1fr) }
   .omni { width: min(320px, 32vw) }
+}
+
+/* Below this the two panes would both be too narrow to work in, so the preview
+   stops sitting beside the fields and sits under them instead. */
+@media (max-width: 1180px) {
+  .editor-split { flex-direction: column }
+  .editor-body { flex: 1 1 auto; min-width: 0 }
+  .editor-preview { flex: 0 0 46%; border-left: 0; border-top: 1px solid var(--line) }
 }
 
 @media (max-width: 900px) {
@@ -1263,10 +1361,13 @@ body.embed::before, body.embed::after { display: none }
   .view { padding: 20px 16px 44px }
   .kpi-row { grid-template-columns: minmax(0, 1fr) }
   .bar-row { grid-template-columns: 96px minmax(0, 1fr) 54px }
-  .editor-layout { grid-template-columns: minmax(0, 1fr) }
-  .editor-rail { border-right: 0; border-bottom: 1px solid var(--line); display: flex; gap: 4px; overflow: auto }
+  /* On a phone the panes stack and the window scrolls again, rather than three
+     little scrollers competing for one thumb. */
+  .editor-layout { flex-direction: column; height: auto; min-height: calc(100vh - 64px) }
+  .editor-rail { flex: none; border-right: 0; border-bottom: 1px solid var(--line); display: flex; gap: 4px; overflow: auto }
   .editor-rail .eyebrow { display: none }
   .editor-body { padding: 20px 16px 44px }
+  .editor-preview { flex: none; height: 70vh }
 }
 
 @media (prefers-reduced-motion: reduce) {
