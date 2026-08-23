@@ -10,10 +10,24 @@ live site and edit it from anywhere; there is nothing to redeploy afterwards.
 
 | | Where it lives | Who can read it |
 |---|---|---|
-| Page HTML, `shell.js`, `sitemap.xml`, the page registry, the profile | Blob, **private** | only this server, using the store's token |
-| Images uploaded through the console | Blob, **public** | anyone — the browser loads them directly |
+| Page HTML, `shell.js`, `sitemap.xml`, the page registry, the profile | Blob | only this server, using the store's token |
+| Images uploaded through the console | Blob | anyone, but only through this server — see below |
 | `styles.css`, `script.js`, `assets/`, the console's own files | this project, deployed to Vercel | anyone |
 | The console password | an environment variable | nobody but Vercel |
+
+**The Blob store is private, and it can never be anything else.** A store's
+access mode is chosen when the store is created and cannot be changed
+afterwards, so every `put()` and `get()` in `lib/store.js` passes
+`access: 'private'`. Asking for `access: 'public'` does not fall back to
+anything — the store refuses it, and the console shows you its refusal:
+*"Cannot use public access on a private store."* If images ever stop uploading
+with that message, something has been switched back to `'public'`.
+
+Uploaded images therefore have no blob URL a browser can reach. They are
+addressed as `/media/<name>` on the site instead, and the handler fetches them
+from the store and passes them on. The name carries the moment of upload and is
+never reused, so those responses are cached for a year and the function is asked
+for any one image about once.
 
 The HTML files still in this project (`index.html`, `about/index.html` and the
 rest) are the **seed**, not the live site. `.vercelignore` keeps them out of the

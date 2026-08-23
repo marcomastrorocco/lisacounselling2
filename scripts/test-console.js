@@ -7,29 +7,44 @@ const path = require('path')
 const project = path.join(__dirname, '..')
 const memory = new Map()
 
+/* The real store is private, and a private store refuses access: 'public'
+   outright — asking for it is how image uploads broke once, with the store's
+   own error surfacing in the console. So the stand-in refuses it too. */
+function privateOnly(method, options) {
+  if (!options || !options.access) throw new Error(`${method}() needs an access option`)
+  if (options.access !== 'private') {
+    throw new Error('Vercel Blob: Cannot use public access on a private store. The store is configured with private access.')
+  }
+}
+
 const fakeBlob = {
   async put(pathname, body, options) {
-    if (!options || !options.access) throw new Error('put() needs an access option')
+    privateOnly('put', options)
     if (memory.has(pathname) && !options.allowOverwrite) throw new Error('blob already exists')
     memory.set(pathname, {
       body: Buffer.isBuffer(body) ? body : Buffer.from(String(body)),
       access: options.access,
       contentType: options.contentType,
     })
-    return {pathname, url: `https://fake123.public.blob.vercel-storage.com/${pathname}`}
+    return {pathname, url: `https://fake123.private.blob.vercel-storage.com/${pathname}`}
   },
   async get(pathname, options) {
-    if (!options || !options.access) throw new Error('get() needs an access option')
+    privateOnly('get', options)
     const found = memory.get(pathname)
     if (!found) return null
-    return {statusCode: 200, stream: new Response(found.body).body, headers: new Headers(), blob: {}}
+    return {
+      statusCode: 200,
+      stream: new Response(found.body).body,
+      headers: new Headers(),
+      blob: {contentType: found.contentType},
+    }
   },
   async list(options) {
     const prefix = (options && options.prefix) || ''
     return {
       blobs: [...memory.entries()]
         .filter(([key]) => key.startsWith(prefix))
-        .map(([key, value]) => ({pathname: key, url: `https://fake123.public.blob.vercel-storage.com/${key}`, size: value.body.length})),
+        .map(([key, value]) => ({pathname: key, url: `https://fake123.private.blob.vercel-storage.com/${key}`, size: value.body.length})),
     }
   },
   async del(pathname) { memory.delete(pathname) },
@@ -160,12 +175,23 @@ async function main() {
   console.log('\nImages')
   const png = 'data:image/png;base64,' + Buffer.from('fake png bytes').toString('base64')
   const upload = await call('POST', '/api/upload', {cookie, body: {name: 'Lisa Photo.PNG', data: png}})
-  check('an image uploads', upload.status === 200 && /public\.blob\.vercel-storage\.com\/media\//.test(upload.json.url), upload.text)
-  check('the name is made safe', /\/media\/\d+-lisa-photo\.png$/.test(upload.json.url), upload.json.url)
+  check('an image uploads', upload.status === 200 && typeof upload.json.url === 'string', upload.text)
+  // A private store has no browser-reachable URL, so an upload is addressed by
+  // this site rather than by Blob.
+  check('it is addressed on this site', /^\/media\/\d+-lisa-photo\.png$/.test(upload.json.url || ''), upload.json.url)
   const notImage = await call('POST', '/api/upload', {cookie, body: {name: 'x.exe', data: 'data:application/x-msdownload;base64,AAAA'}})
   check('a non-image is refused', notImage.status === 400)
   const media = await call('GET', '/api/media', {cookie})
   check('the library lists the upload', media.status === 200 && media.json.length === 1, media.text)
+
+  const served = await call('GET', upload.json.url)
+  check('the image is served to the browser', served.status === 200 && served.text === 'fake png bytes', served.text.slice(0, 80))
+  check('and served as the image it is', served.headers['Content-Type'] === 'image/png', served.headers['Content-Type'])
+  // The name carries its upload time and is never reused, so nothing goes stale.
+  check('and cached hard', /immutable/.test(served.headers['Cache-Control'] || ''), served.headers['Cache-Control'])
+  check('signing out does not hide the images', (await call('GET', upload.json.url)).status === 200)
+  check('a missing image is a 404', (await call('GET', '/media/no-such-image.png')).status === 404)
+  check('an image cannot be escaped from', (await call('GET', '/media/..%2Fsite%2Fpages.json')).status === 404)
 
   console.log('\nProfile')
   const profile = await call('PUT', '/api/profile', {cookie, body: {name: 'Lisa Chiarini', credential: 'ACA', role: 'Admin', photo: upload.json.url}})
