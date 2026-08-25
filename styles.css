@@ -49,7 +49,6 @@
 .brand img{display:none}.brand{display:grid;justify-items:center;color:var(--pine);line-height:.75}.brand:before{content:'spes';font:500 2.35rem/.72 var(--font-display);letter-spacing:.02em}.brand:after{content:'C O U N S E L L I N G';font:600 .42rem/1 var(--font-body);letter-spacing:.12em;margin-top:8px}
 .hero-mark,.hero-service,.hero-values,.hero-leaf{display:none}.hero-brand-name{font:500 clamp(5.5rem,15vw,10rem)/.68 var(--font-display);letter-spacing:.01em;text-transform:lowercase;transform:none}.hero-brand-name:after{content:'COUNSELLING';display:block;margin-top:2rem;font:600 clamp(.8rem,1.7vw,1.12rem)/1 var(--font-body);letter-spacing:.55em;text-transform:uppercase;transform:translateX(.27em)}.hero-identity .tagline{color:var(--pine);font-weight:500}.hero-identity .tagline:before{content:'Support recovery, resilience and meaningful change.';display:block}.hero-identity .tagline{font-size:0}.hero-identity .tagline:before{font:italic 500 clamp(1.25rem,3vw,1.75rem)/1.35 var(--font-display)}
 .media-band.home img,.media-band.help img,.media-inset.approach img,.media-inset.contact img{filter:saturate(.82) contrast(.96);object-position:center 54%}
-.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('../assets/img/spes-clear-sea.png')}
 .footer-logo{display:none}
 .home-hero{padding-top:clamp(1.5rem,4vw,3rem)}
 .hero-identity{position:relative;isolation:isolate;width:min(100%,1000px);padding:clamp(4rem,10vw,7.5rem) clamp(1.25rem,5vw,4rem);overflow:hidden;border-radius:var(--radius);background:url('assets/img/spes-clear-sea.png') center 54%/cover no-repeat;box-shadow:0 12px 35px rgba(13,27,42,.13)}
@@ -120,7 +119,7 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 .home-hero .hero-copy h1{font-size:clamp(2.2rem,5vw,3.75rem)}
 .media-band.home{display:block;aspect-ratio:21/6;max-height:300px;margin-block:0;background:var(--color-bg-warm)}
 .media-band.home img{filter:none}
-.media-band.help img,.media-inset.approach img,.media-inset.contact img{content:url('../assets/img/spes-hazy-water.png');filter:none}
+.media-band.help img,.media-inset.approach img,.media-inset.contact img{filter:none}
 .line-band:before,.line-band:after{background:var(--color-gold)}.line-band p{color:var(--color-navy)}
 .form-field input,.form-field textarea{background:var(--color-bg);border-color:var(--color-gold-light);color:var(--color-navy)}
 @media(max-width:600px){.hero-identity{min-height:320px;padding:2rem 1rem}.home-hero .hero-copy{padding:3.5rem 1rem}.media-band.home{aspect-ratio:16/6}}
