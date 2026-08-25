@@ -741,7 +741,7 @@ table.data td:first-child { text-align: left; color: var(--ink-2) }
 .media-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) }
 
 .media-card { padding: 0 }
-.media-card img { display: block; width: 100%; height: 134px; object-fit: cover; background: var(--ivory) }
+.media-card img, .media-card video { display: block; width: 100%; height: 134px; object-fit: cover; background: var(--ivory) }
 .media-card .media-body { padding: 12px 13px 14px; border-top: 1px solid var(--line) }
 .media-card b { display: block; font-size: 12.5px; font-weight: 600; color: var(--pine); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .media-card span { font: 400 11px/1 var(--mono); color: var(--ink-3) }
@@ -1259,7 +1259,7 @@ table.data td:first-child { text-align: left; color: var(--ink-2) }
   color: inherit;
 }
 
-.pick-card img { display: block; width: 100%; height: 104px; object-fit: cover; background: var(--ivory) }
+.pick-card img, .pick-card video { display: block; width: 100%; height: 104px; object-fit: cover; background: var(--ivory) }
 .pick-card .pick-body { display: block; padding: 9px 10px 10px; border-top: 1px solid var(--line) }
 .pick-card b { display: block; font-size: 12px; font-weight: 600; color: var(--pine); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .pick-card span span, .pick-card .pick-body > span { font: 400 10.5px/1 var(--mono); color: var(--ink-3) }

@@ -202,6 +202,7 @@ const library = {
   use: $('ml-use'),
   status: $('ml-status'),
   items: null,      // null until the first fetch answers; [] means genuinely empty
+  wants: 'image',   // an <img> cannot show a clip, so a picture field is offered pictures
   current: '',      // what the field already shows, marked so a swap is deliberate
   chosen: null,
   onPick: null,
@@ -220,15 +221,22 @@ function renderLibrary() {
     return void (library.grid.innerHTML = '<p class="hint">No images have been uploaded yet. Use <b>Upload…</b> to add the first one.</p>')
   }
   const needle = library.filter.value.trim().toLowerCase()
-  const shown = library.items.filter(item => !needle || item.name.toLowerCase().includes(needle))
+  const usable = library.items.filter(item => (item.kind || 'image') === library.wants)
+  if (!usable.length) {
+    return void (library.grid.innerHTML = `<p class="hint">No ${library.wants === 'video' ? 'video' : 'pictures'} in the library yet.</p>`)
+  }
+  const shown = usable.filter(item => !needle || item.name.toLowerCase().includes(needle))
   library.grid.innerHTML = shown.map(item => `
     <button class="pick-card" type="button" data-url="${esc(item.url)}" aria-pressed="${item.url === library.chosen}">
-      <img src="${esc(item.url)}" alt="" loading="lazy">
+      ${item.kind === 'video'
+        ? `<video src="${esc(item.url)}" muted playsinline preload="metadata"></video>`
+        : `<img src="${esc(item.url)}" alt="" loading="lazy">`}
       <span class="pick-body"><b title="${esc(item.name)}">${esc(item.name)}</b><span>${bytes(item.bytes)}${item.url === library.current ? ' · in use' : ''}</span></span>
     </button>`).join('') || '<p class="hint">No file name matches that.</p>'
 }
 
-async function openLibrary(current, onPick, opener) {
+async function openLibrary(current, onPick, opener, wants = 'image') {
+  library.wants = wants
   library.current = current || ''
   library.chosen = current || null
   library.onPick = onPick
@@ -265,11 +273,11 @@ function useChosen() {
 
 /* An upload is the only thing that adds to the store from here, so it is also
    the only thing that can leave the kept list behind. */
-function rememberUpload(url, size) {
+function rememberUpload(url, size, kind) {
   if (!library.items) return
   const name = url.slice(url.lastIndexOf('/') + 1)
   if (library.items.some(item => item.url === url)) return
-  library.items.unshift({name, url, bytes: size})
+  library.items.unshift({name, url, bytes: size, kind: kind || 'image'})
 }
 
 library.grid.addEventListener('click', event => {
@@ -336,21 +344,17 @@ function imageField(section, index, img) {
   upload.textContent = 'Upload…'
   const picker = document.createElement('input')
   picker.type = 'file'
-  picker.accept = 'image/png,image/jpeg,image/webp,image/svg+xml'
+  picker.accept = window.SPES_ACCEPT
   picker.addEventListener('change', async () => {
     const file = picker.files[0]
     if (!file) return
     setStatus(`Uploading ${file.name}…`)
     try {
-      const data = await new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = () => reject(new Error('Could not read that file'))
-        reader.readAsDataURL(file)
+      const result = await spesUpload(file, {
+        api,
+        onProgress: share => setStatus(`Uploading ${file.name} — ${Math.round(share * 100)}%`),
       })
-      const result = await api('/api/upload', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: file.name, data})})
-      if (!result.url) throw new Error(result.error || 'Upload failed')
-      rememberUpload(result.url, file.size)
+      rememberUpload(result.url, result.bytes, result.kind)
       source.value = result.url
       useSource(result.url)
       spotlight(img)

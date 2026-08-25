@@ -48,6 +48,32 @@ const fakeBlob = {
     }
   },
   async del(pathname) { memory.delete(pathname) },
+
+  /* Signing a URL for the browser to upload to. The stand-in cannot take a real
+     PUT, so a test writes through put() where a browser would send bytes; what
+     is worth checking here is that the handler asks for the right scope. */
+  async issueSignedToken(options) {
+    if (!options || !options.pathname) throw new Error('issueSignedToken() needs a pathname')
+    return {
+      delegationToken: `fake-delegation:${options.pathname}`,
+      clientSigningToken: 'fake-signing',
+      validUntil: options.validUntil || Date.now() + 3600 * 1000,
+      scope: options,
+    }
+  },
+
+  /* The real presignUrl builds `<store>.<access>.blob.vercel-storage.com`, and
+     when `access` is left out the hostname comes back with the word `undefined`
+     in it and resolves nowhere — the SDK's own types omit the field on the
+     get-shaped options, so it is easy to lose. The stand-in refuses it the way
+     privateOnly() refuses a missing access, so it cannot be lost again quietly. */
+  async presignUrl(issued, options) {
+    if (!issued || !issued.delegationToken) throw new Error('presignUrl() needs an issued token')
+    if (options.operation === 'get' && options.access !== 'private') {
+      throw new Error("presignUrl() on a private store needs access: 'private'")
+    }
+    return {presignedUrl: `https://fake123.private.blob.vercel-storage.com/${options.pathname}?vercel-blob-signature=fake`}
+  },
 }
 
 const load = Module._load
@@ -192,6 +218,40 @@ async function main() {
   check('signing out does not hide the images', (await call('GET', upload.json.url)).status === 200)
   check('a missing image is a 404', (await call('GET', '/media/no-such-image.png')).status === 404)
   check('an image cannot be escaped from', (await call('GET', '/media/..%2Fsite%2Fpages.json')).status === 404)
+
+  /* The bytes used to travel through the function as base64 inside JSON, which
+     a Vercel function caps at 4.5 MB of request body — so anything much past
+     3 MB of actual picture failed, and video was hopeless. These check the
+     ceiling is now the store's rather than the platform's. */
+  console.log('\nLarge files and video')
+  const ticket = await call('POST', '/api/upload-url', {cookie, body: {name: 'Session Room.JPEG', contentType: 'image/jpeg', size: 9 * 1024 * 1024}})
+  check('a 9 MB photo is allowed', ticket.status === 200, ticket.text)
+  check('the browser is told where to send it', typeof (ticket.json || {}).uploadUrl === 'string', ticket.text)
+  check('and what it will answer to here', /^\/media\/\d+-session-room\.jpg$/.test((ticket.json || {}).url || ''), (ticket.json || {}).url)
+
+  const clip = await call('POST', '/api/upload-url', {cookie, body: {name: 'Welcome Clip.MOV', contentType: 'video/quicktime', size: 120 * 1024 * 1024}})
+  check('a 120 MB video is allowed', clip.status === 200, clip.text)
+  check('a .mov is addressed as one', /^\/media\/\d+-welcome-clip\.mov$/.test((clip.json || {}).url || ''), (clip.json || {}).url)
+
+  check('but not past the video limit', (await call('POST', '/api/upload-url', {cookie, body: {name: 'huge.mp4', contentType: 'video/mp4', size: 900 * 1024 * 1024}})).status === 400)
+  check('nor past the picture limit', (await call('POST', '/api/upload-url', {cookie, body: {name: 'huge.png', contentType: 'image/png', size: 100 * 1024 * 1024}})).status === 400)
+  check('nor a type the site cannot use', (await call('POST', '/api/upload-url', {cookie, body: {name: 'x.exe', contentType: 'application/x-msdownload', size: 64}})).status === 400)
+  check('nor an empty file', (await call('POST', '/api/upload-url', {cookie, body: {name: 'x.png', contentType: 'image/png', size: 0}})).status === 400)
+  check('and a ticket needs a session', (await call('POST', '/api/upload-url', {body: {name: 'a.png', contentType: 'image/png', size: 64}})).status === 401)
+
+  // Where the browser would PUT to the signed URL, the test writes directly.
+  await store.putMedia(clip.json.name, Buffer.from('fake mp4 bytes'), 'video/quicktime')
+  const play = await call('GET', clip.json.url)
+  check('video is answered with a redirect, not the bytes', play.status === 302, `${play.status} ${play.text.slice(0, 60)}`)
+  check('the redirect points into the store', /blob\.vercel-storage\.com/.test(play.headers.Location || ''), play.headers.Location)
+  // The signature lasts an hour; nothing may hold the redirect anywhere near it.
+  check('and is cached for well under the signature', /max-age=300/.test(play.headers['Cache-Control'] || ''), play.headers['Cache-Control'])
+
+  const withVideo = await call('GET', '/api/media', {cookie})
+  const clipRow = (withVideo.json || []).find(item => item.name === clip.json.name)
+  check('the library knows it is video', Boolean(clipRow) && clipRow.kind === 'video', JSON.stringify(clipRow))
+  const photoRow = (withVideo.json || []).find(item => /\.png$/.test(item.name))
+  check('and that a picture is not', Boolean(photoRow) && photoRow.kind === 'image', JSON.stringify(photoRow))
 
   console.log('\nProfile')
   const profile = await call('PUT', '/api/profile', {cookie, body: {name: 'Lisa Chiarini', credential: 'ACA', role: 'Admin', photo: upload.json.url}})

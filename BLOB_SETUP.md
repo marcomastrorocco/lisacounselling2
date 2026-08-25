@@ -11,7 +11,7 @@ live site and edit it from anywhere; there is nothing to redeploy afterwards.
 | | Where it lives | Who can read it |
 |---|---|---|
 | Page HTML, `shell.js`, `sitemap.xml`, the page registry, the profile | Blob | only this server, using the store's token |
-| Images uploaded through the console | Blob | anyone, but only through this server — see below |
+| Images and video uploaded through the console | Blob | anyone, but only through this server — see below |
 | `styles.css`, `script.js`, `assets/`, the console's own files | this project, deployed to Vercel | anyone |
 | The console password | an environment variable | nobody but Vercel |
 
@@ -23,11 +23,50 @@ anything — the store refuses it, and the console shows you its refusal:
 *"Cannot use public access on a private store."* If images ever stop uploading
 with that message, something has been switched back to `'public'`.
 
-Uploaded images therefore have no blob URL a browser can reach. They are
-addressed as `/media/<name>` on the site instead, and the handler fetches them
-from the store and passes them on. The name carries the moment of upload and is
-never reused, so those responses are cached for a year and the function is asked
-for any one image about once.
+Uploaded files therefore have no blob URL a browser can reach. They are
+addressed as `/media/<name>` on the site instead. The name carries the moment of
+upload and is never reused, so an address always means the same bytes.
+
+**Images** are fetched from the store by the handler and passed on, cached for a
+year, so the function is asked for any one image about once.
+
+**Video is answered with a redirect instead**, to a signed URL that lasts an
+hour. Passing a clip on the way images are would mean holding the whole file in
+memory to send it in one piece, and a player seeking through it asks for byte
+ranges that path cannot serve — so it would arrive slowly and still not scrub.
+The redirect sends the browser to the store's own CDN, which does ranges
+properly. It is cached for five minutes: long enough that seeking does not ask
+for a new one every few seconds, short enough that no browser ever holds a URL
+past the point where its signature still works.
+
+## Uploading, and the ceiling that used to be there
+
+A file used to be read as base64, posted to `/api/upload` inside JSON, and
+written to the store by the function. Two ceilings came with that, neither of
+them the store's: base64 makes a file a third larger again, and **a Vercel
+function may only be handed 4.5 MB of request body at all**. That put the real
+limit near 3 MB of actual picture — which a photo straight off a phone clears on
+its own — and made video impossible.
+
+The bytes no longer pass through the function. `POST /api/upload-url` signs a
+short-lived URL scoped to one pathname, one content type and one size, and the
+browser sends the file to Blob directly (`admin/upload.js`). The limits are now
+just what the site has any business holding, set in `lib/store.js`:
+
+| | Limit |
+|---|---|
+| PNG, JPG, WebP, AVIF, GIF, SVG | 32 MB |
+| MP4, WebM, MOV | 512 MB |
+
+The old `/api/upload` still works and is still tested; nothing but the console
+used it.
+
+One trap worth knowing about, because the SDK's own types hide it: `presignUrl`
+builds the hostname as `<store>.<access>.blob.vercel-storage.com`, but the
+get-shaped options it accepts do not declare `access`. Leave it out and the URL
+comes back with the word `undefined` where the access segment belongs and
+resolves nowhere. `signedGetUrl` passes it explicitly, and the test suite's
+stand-in refuses a `get` presign without it.
 
 The HTML files still in this project (`index.html`, `about/index.html` and the
 rest) are the **seed**, not the live site. `.vercelignore` keeps them out of the

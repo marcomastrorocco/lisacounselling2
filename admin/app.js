@@ -14,6 +14,9 @@ const FORMATS = [
   {id: 'jpeg', label: 'JPEG', colour: 'var(--s2)', test: /\.jpe?g$/i},
   {id: 'png', label: 'PNG', colour: 'var(--s3)', test: /\.png$/i},
   {id: 'svg', label: 'SVG', colour: 'var(--s4)', test: /\.svg$/i},
+  {id: 'gif', label: 'GIF', colour: 'var(--s1)', test: /\.gif$/i},
+  {id: 'avif', label: 'AVIF', colour: 'var(--s2)', test: /\.avif$/i},
+  {id: 'video', label: 'Video', colour: 'var(--s3)', test: /\.(mp4|webm|mov)$/i},
 ]
 const CHECKS = [
   {id: 'title', label: 'Browser & Google title set (15–65 characters)', test: s => s.title.length >= 15 && s.title.length <= 65},
@@ -320,7 +323,9 @@ function renderMedia(filter = 'all') {
     </div>
     <div class="media-grid">${shown.map(item => `
       <article class="card media-card">
-        <img src="${esc(item.url)}" alt="" loading="lazy">
+        ${(item.kind || formatOf(item.name)) === 'video'
+          ? `<video src="${esc(item.url)}" controls playsinline preload="metadata"></video>`
+          : `<img src="${esc(item.url)}" alt="" loading="lazy">`}
         <div class="media-body"><b title="${esc(item.name)}">${esc(item.name)}</b><span>${bytes(item.bytes)} · ${esc(item.url.replace('/' + item.name, ''))}</span></div>
       </article>`).join('') || '<p class="card-sub">No images in this format.</p>'}</div>`
 }
@@ -483,14 +488,10 @@ function setSheetStatus(text, tone = '') {
 
 async function uploadPhoto(file) {
   setSheetStatus(`Uploading ${file.name}…`)
-  const data = await new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = () => reject(new Error('Could not read that file'))
-    reader.readAsDataURL(file)
+  const result = await spesUpload(file, {
+    api,
+    onProgress: share => setSheetStatus(`Uploading ${file.name} — ${Math.round(share * 100)}%`),
   })
-  const result = await api('/api/upload', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: file.name, data})})
-  if (!result.url) throw new Error(result.error || 'Upload failed')
   draft.photo = result.url
   draft.name = $('pf-name').value
   face($('pf-preview'), draft)
