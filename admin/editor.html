@@ -60,6 +60,24 @@
   </div>
 </div>
 
+<div class="backdrop" id="media-sheet" hidden>
+  <div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="ml-title">
+    <header class="sheet-head">
+      <h2 id="ml-title">Choose an image</h2>
+      <button class="toggle" id="ml-close" type="button">Close</button>
+    </header>
+    <div class="sheet-body">
+      <input class="field-filter" id="ml-filter" type="search" placeholder="Filter by file name…" autocomplete="off">
+      <div class="media-picker" id="ml-grid"></div>
+    </div>
+    <footer class="sheet-foot">
+      <span class="status" id="ml-status"></span>
+      <button class="btn" id="ml-cancel" type="button">Cancel</button>
+      <button class="btn primary" id="ml-use" type="button" disabled>Use this image</button>
+    </footer>
+  </div>
+</div>
+
 <script src="/admin/editor.js"></script>
 </body>
 </html>

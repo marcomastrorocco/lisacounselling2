@@ -38,6 +38,9 @@ const remember = {
   set(key, value) { try { localStorage.setItem(key, value) } catch { /* storage refused */ } },
 }
 
+const esc = value => String(value).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]))
+const bytes = n => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'
+
 /* ---------- the preview ----------
    The frame loads the page's own address, which is the only way the stylesheet,
    the shared header and footer, and every relative image path resolve as they
@@ -183,6 +186,113 @@ function setSource(img, value) {
   }
 }
 
+/* ---------- choosing an image already uploaded ----------
+   Every image the console has ever taken is in the store already, so an image
+   field should not have to be given the file a second time to reuse one. This
+   is the same list /api/media renders on the dashboard, borrowed as a picker:
+   one shared sheet that whichever field opened it gets the answer back from.
+
+   The list is fetched once and then kept, because it only changes when this
+   page uploads something — and when it does, the upload puts it there itself
+   rather than sending everyone back to the network for one new row. */
+const library = {
+  sheet: $('media-sheet'),
+  grid: $('ml-grid'),
+  filter: $('ml-filter'),
+  use: $('ml-use'),
+  status: $('ml-status'),
+  items: null,      // null until the first fetch answers; [] means genuinely empty
+  current: '',      // what the field already shows, marked so a swap is deliberate
+  chosen: null,
+  onPick: null,
+  opener: null,     // the button to hand focus back to on the way out
+}
+
+function libraryStatus(text, tone = '') {
+  library.status.textContent = text
+  tone ? library.status.dataset.tone = tone : delete library.status.dataset.tone
+}
+
+function renderLibrary() {
+  library.use.disabled = !library.chosen
+  if (!library.items) return void (library.grid.innerHTML = '<p class="hint">Loading the library…</p>')
+  if (!library.items.length) {
+    return void (library.grid.innerHTML = '<p class="hint">No images have been uploaded yet. Use <b>Upload…</b> to add the first one.</p>')
+  }
+  const needle = library.filter.value.trim().toLowerCase()
+  const shown = library.items.filter(item => !needle || item.name.toLowerCase().includes(needle))
+  library.grid.innerHTML = shown.map(item => `
+    <button class="pick-card" type="button" data-url="${esc(item.url)}" aria-pressed="${item.url === library.chosen}">
+      <img src="${esc(item.url)}" alt="" loading="lazy">
+      <span class="pick-body"><b title="${esc(item.name)}">${esc(item.name)}</b><span>${bytes(item.bytes)}${item.url === library.current ? ' · in use' : ''}</span></span>
+    </button>`).join('') || '<p class="hint">No file name matches that.</p>'
+}
+
+async function openLibrary(current, onPick, opener) {
+  library.current = current || ''
+  library.chosen = current || null
+  library.onPick = onPick
+  library.opener = opener
+  library.filter.value = ''
+  library.sheet.hidden = false
+  libraryStatus('')
+  renderLibrary()
+  library.filter.focus()
+  if (library.items) return
+  try {
+    const list = await api('/api/media')
+    library.items = Array.isArray(list) ? list : []
+  } catch (error) {
+    library.items = []
+    libraryStatus(error.message, 'error')
+  }
+  renderLibrary()
+}
+
+function closeLibrary() {
+  library.sheet.hidden = true
+  library.onPick = null
+  if (library.opener) library.opener.focus()
+  library.opener = null
+}
+
+function useChosen() {
+  const pick = library.onPick, url = library.chosen
+  if (!pick || !url) return
+  closeLibrary()
+  pick(url)
+}
+
+/* An upload is the only thing that adds to the store from here, so it is also
+   the only thing that can leave the kept list behind. */
+function rememberUpload(url, size) {
+  if (!library.items) return
+  const name = url.slice(url.lastIndexOf('/') + 1)
+  if (library.items.some(item => item.url === url)) return
+  library.items.unshift({name, url, bytes: size})
+}
+
+library.grid.addEventListener('click', event => {
+  const card = event.target.closest('.pick-card')
+  if (!card) return
+  library.chosen = card.dataset.url
+  renderLibrary()
+})
+library.grid.addEventListener('dblclick', event => {
+  const card = event.target.closest('.pick-card')
+  if (!card) return
+  library.chosen = card.dataset.url
+  useChosen()
+})
+library.filter.addEventListener('input', renderLibrary)
+library.filter.addEventListener('keydown', event => {
+  if (event.key === 'Enter') { event.preventDefault(); useChosen() }
+})
+library.use.addEventListener('click', useChosen)
+$('ml-close').addEventListener('click', closeLibrary)
+$('ml-cancel').addEventListener('click', closeLibrary)
+library.sheet.addEventListener('click', event => { if (event.target === library.sheet) closeLibrary() })
+
 function imageField(section, index, img) {
   const wrap = document.createElement('div')
   wrap.className = 'field'
@@ -210,6 +320,17 @@ function imageField(section, index, img) {
   source.addEventListener('focus', () => spotlight(img))
   source.addEventListener('blur', () => spotlight(null))
 
+  const browse = document.createElement('button')
+  browse.className = 'btn small'
+  browse.type = 'button'
+  browse.textContent = 'Library…'
+  browse.addEventListener('click', () => openLibrary(source.value, chosen => {
+    source.value = chosen
+    useSource(chosen)
+    spotlight(img)
+    setStatus('Image chosen from the library — press Save changes', 'dirty')
+  }, browse))
+
   const upload = document.createElement('label')
   upload.className = 'upload'
   upload.textContent = 'Upload…'
@@ -229,6 +350,7 @@ function imageField(section, index, img) {
       })
       const result = await api('/api/upload', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: file.name, data})})
       if (!result.url) throw new Error(result.error || 'Upload failed')
+      rememberUpload(result.url, file.size)
       source.value = result.url
       useSource(result.url)
       spotlight(img)
@@ -238,7 +360,7 @@ function imageField(section, index, img) {
   })
 
   upload.append(picker)
-  row.append(thumb, source, upload)
+  row.append(thumb, source, browse, upload)
   wrap.append(row)
   section.append(wrap)
 
@@ -372,6 +494,7 @@ $('filter').addEventListener('input', event => {
   })
 })
 document.addEventListener('keydown', event => {
+  if (!library.sheet.hidden && event.key === 'Escape') { event.preventDefault(); return closeLibrary() }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); if (!saveButton.disabled) save() }
 })
 window.addEventListener('beforeunload', event => { if (dirty) event.preventDefault() })
