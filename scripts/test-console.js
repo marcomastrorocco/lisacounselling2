@@ -253,6 +253,34 @@ async function main() {
   const photoRow = (withVideo.json || []).find(item => /\.png$/.test(item.name))
   check('and that a picture is not', Boolean(photoRow) && photoRow.kind === 'image', JSON.stringify(photoRow))
 
+  /* The library is the only place an upload can be taken back out of the store,
+     so what it must never do is take one a live page is still showing. */
+  console.log('\nTidying the library')
+  const pngName = String(upload.json.url || '').split('/').pop()
+  const idle = await call('GET', '/api/media', {cookie})
+  const idleRow = (idle.json || []).find(item => item.name === pngName)
+  check('a file no page points at is reported unused', Boolean(idleRow) && idleRow.usedBy.length === 0, JSON.stringify(idleRow))
+
+  const showing = `<!doctype html><html><head><title>About</title></head><body><main><h1>About Lisa</h1><img src="${upload.json.url}" alt=""></main></body></html>`
+  await call('PUT', '/api/page', {cookie, body: {id: 'about', html: showing}})
+  const busy = await call('GET', '/api/media', {cookie})
+  const busyRow = (busy.json || []).find(item => item.name === pngName)
+  check('and reported against the page that shows it', Boolean(busyRow) && busyRow.usedBy.includes('About'), JSON.stringify(busyRow))
+
+  const refused = await call('DELETE', `/api/media?name=${pngName}`, {cookie})
+  check('deleting a file a page still uses is refused', refused.status === 409, refused.text)
+  check('and the file is still served', (await call('GET', upload.json.url)).status === 200)
+
+  await call('PUT', '/api/page', {cookie, body: {id: 'about', html: edited}})
+  const gone = await call('DELETE', `/api/media?name=${pngName}`, {cookie})
+  check('deleting an unused file works', gone.status === 200, gone.text)
+  check('the library stops listing it', !((await call('GET', '/api/media', {cookie})).json || []).some(item => item.name === pngName))
+  check('and the site stops serving it', (await call('GET', upload.json.url)).status === 404)
+  check('deleting it again is a 404', (await call('DELETE', `/api/media?name=${pngName}`, {cookie})).status === 404)
+  check('a name cannot escape the media folder', (await call('DELETE', '/api/media?name=..%2Fsite%2Fpages.json', {cookie})).status === 400)
+  check('and a deletion needs a session', (await call('DELETE', `/api/media?name=${clip.json.name}`)).status === 401)
+  check('the video survived all that', (await call('GET', '/api/media', {cookie})).json.some(item => item.name === clip.json.name))
+
   console.log('\nProfile')
   const profile = await call('PUT', '/api/profile', {cookie, body: {name: 'Lisa Chiarini', credential: 'ACA', role: 'Admin', photo: upload.json.url}})
   check('the profile saves with an uploaded photo', profile.status === 200, profile.text)

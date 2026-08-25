@@ -745,6 +745,9 @@ table.data td:first-child { text-align: left; color: var(--ink-2) }
 .media-card .media-body { padding: 12px 13px 14px; border-top: 1px solid var(--line) }
 .media-card b { display: block; font-size: 12.5px; font-weight: 600; color: var(--pine); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .media-card span { font: 400 11px/1 var(--mono); color: var(--ink-3) }
+.media-card .media-body { display: grid; gap: 7px; justify-items: start }
+.media-card .media-use { font: 400 11px/1.4 var(--sans); overflow-wrap: anywhere }
+.media-card .media-use.free { color: var(--gold-deep) }
 
 .tag {
   display: inline-block;

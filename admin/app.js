@@ -26,7 +26,7 @@ const CHECKS = [
   {id: 'depth', label: 'At least 120 words of content', test: s => s.words >= 120},
 ]
 
-const state = {view: 'overview', page: 'home', stats: [], media: [], profile: {}, deleting: null, booted: false}
+const state = {view: 'overview', page: 'home', stats: [], media: [], profile: {}, deleting: null, deletingFile: null, mediaFilter: 'all', booted: false}
 const $ = id => document.getElementById(id)
 const esc = value => String(value).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]))
 /* Labels and addresses come from the server's page registry, so a page added or
@@ -39,6 +39,9 @@ const slugify = value => value.toLowerCase().replace(/&/g, ' and ').replace(/[^a
 const compact = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 10000 ? (n / 1000).toFixed(1) + 'K' : n.toLocaleString('en-AU')
 const bytes = n => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'
 const formatOf = file => (FORMATS.find(f => f.test.test(file)) || FORMATS[2]).id
+/* /api/media reports the pages each file is shown on. An answer from before that
+   field existed reads as "in use", which is the side to be wrong on. */
+const usedBy = item => item.usedBy || []
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 function ago(ms) {
   const mins = Math.round((Date.now() - ms) / 60000)
@@ -313,21 +316,81 @@ async function deletePage() {
   }
 }
 
-function renderMedia(filter = 'all') {
+/* The filter is kept on the state rather than passed in, so a repaint after a
+   deletion stays on whichever set was being looked at. */
+function renderMedia(filter = state.mediaFilter) {
+  state.mediaFilter = filter
   const formats = mediaByFormat()
-  const shown = state.media.filter(item => filter === 'all' || formatOf(item.name) === filter)
+  const spare = state.media.filter(item => !usedBy(item).length)
+  const shown = state.media.filter(item => filter === 'all' ? true
+    : filter === 'unused' ? !usedBy(item).length
+    : formatOf(item.name) === filter)
+  const nothing = filter === 'unused'
+    ? 'Every file in the library is shown somewhere on the site.'
+    : 'No files in this format.'
   $('media-body').innerHTML = `
     <div class="filters">
       <button class="chip" data-filter="all" aria-pressed="${filter === 'all'}" type="button">All ${state.media.length}</button>
+      <button class="chip" data-filter="unused" aria-pressed="${filter === 'unused'}" type="button">Unused ${spare.length}</button>
       ${formats.map(format => `<button class="chip" data-filter="${format.id}" aria-pressed="${filter === format.id}" type="button">${format.label} ${format.count}</button>`).join('')}
     </div>
-    <div class="media-grid">${shown.map(item => `
-      <article class="card media-card">
+    <div class="media-grid">${shown.map(item => {
+      const places = usedBy(item)
+      return `<article class="card media-card">
         ${(item.kind || formatOf(item.name)) === 'video'
           ? `<video src="${esc(item.url)}" controls playsinline preload="metadata"></video>`
           : `<img src="${esc(item.url)}" alt="" loading="lazy">`}
-        <div class="media-body"><b title="${esc(item.name)}">${esc(item.name)}</b><span>${bytes(item.bytes)} · ${esc(item.url.replace('/' + item.name, ''))}</span></div>
-      </article>`).join('') || '<p class="card-sub">No images in this format.</p>'}</div>`
+        <div class="media-body">
+          <b title="${esc(item.name)}">${esc(item.name)}</b>
+          <span>${bytes(item.bytes)}</span>
+          ${places.length
+            ? `<span class="media-use">Used by ${esc(places.join(', '))}</span>`
+            : `<span class="media-use free">Not used anywhere</span>
+               <button class="btn small danger" data-delete-file="${esc(item.name)}" type="button">Delete</button>`}
+        </div>
+      </article>`
+    }).join('') || `<p class="card-sub">${nothing}</p>`}</div>`
+}
+
+/* Deleting an upload is only offered for a file no page points at, and the
+   server checks that again before it goes — the library in this tab may have
+   been rendered before an edit made in another one. */
+function openDeleteFileSheet(fileName) {
+  const item = state.media.find(file => file.name === fileName)
+  if (!item) return
+  const places = usedBy(item)
+  if (places.length) return toast(`“${item.name}” is still used by ${places.join(', ')}`)
+  state.deletingFile = item.name
+  $('df-summary').textContent = `“${item.name}” is ${bytes(item.bytes)} and nothing on the site uses it. Deleting it cannot be undone from here.`
+  $('df-effects').innerHTML = [
+    `Removes <code>${esc(item.url)}</code> from the store`,
+    'Removes it from the picture chooser in every page editor',
+    'Anything still pointing at that address would show a broken image',
+  ].map(line => `<li>${line}</li>`).join('')
+  setStatusOf('df-status', '')
+  $('df-delete').disabled = false
+  $('delete-file-sheet').hidden = false
+  $('df-delete').focus()
+}
+
+async function deleteFile() {
+  const fileName = state.deletingFile
+  if (!fileName) return
+  $('df-delete').disabled = true
+  setStatusOf('df-status', 'Deleting…')
+  try {
+    const result = await api(`/api/media?name=${encodeURIComponent(fileName)}`, {method: 'DELETE'})
+    if (result.error) throw new Error(result.error)
+    $('delete-file-sheet').hidden = true
+    state.deletingFile = null
+    state.media = state.media.filter(item => item.name !== fileName)
+    renderOverview()
+    renderMedia()
+    toast(`“${fileName}” deleted`)
+  } catch (error) {
+    setStatusOf('df-status', error.message, 'error')
+    $('df-delete').disabled = false
+  }
 }
 
 function renderHealth() {
@@ -662,6 +725,10 @@ document.addEventListener('click', event => {
   if (event.target.closest('#add-page')) return openNewPageSheet()
   if (event.target.id === 'np-create') return createPage()
   if (event.target.id === 'dp-delete') return deletePage()
+  if (event.target.id === 'df-delete') return deleteFile()
+
+  const removeFile = event.target.closest('[data-delete-file]')
+  if (removeFile) return openDeleteFileSheet(removeFile.dataset.deleteFile)
 
   const remove = event.target.closest('[data-delete]')
   if (remove) return openDeleteSheet(remove.dataset.delete)
@@ -700,7 +767,7 @@ $('pf-name').addEventListener('input', event => {
 })
 
 document.addEventListener('keydown', event => {
-  const SHEETS = {'profile-sheet': saveProfile, 'new-page-sheet': createPage, 'delete-page-sheet': () => $('dp-delete').disabled || deletePage()}
+  const SHEETS = {'profile-sheet': saveProfile, 'new-page-sheet': createPage, 'delete-page-sheet': () => $('dp-delete').disabled || deletePage(), 'delete-file-sheet': deleteFile}
   const openId = Object.keys(SHEETS).find(id => !$(id).hidden)
   if (openId) {
     if (event.key === 'Escape') return void ($(openId).hidden = true)
