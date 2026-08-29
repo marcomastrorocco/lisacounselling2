@@ -162,3 +162,22 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 
 /* Slightly deeper coastal image and a cleaner metallic gold identity */
 .quiet-hero-overlay{background:linear-gradient(to bottom,rgba(250,247,242,.18),rgba(250,247,242,.10))}
+
+/* Closing "Get in touch" CTA band on every page */
+.cta-band{padding:clamp(3rem,6vw,4.5rem) 0}
+.cta-band h2{margin-bottom:.6rem}
+.cta-band p{max-width:48ch;margin:0 auto 1.9rem;color:var(--color-gold-light)}
+.cta-band .button{background:var(--color-gold);border-color:var(--color-gold);color:var(--color-navy)}
+.cta-band .button:hover{background:#E0B87B;border-color:#E0B87B;color:var(--color-navy)}
+.cta-band .button.secondary{background:transparent;border-color:var(--color-gold-light);color:var(--color-bg)}
+.cta-band .button.secondary:hover{background:var(--color-bg);border-color:var(--color-bg);color:var(--color-navy)}
+.cta-band .actions{margin-top:0}
+
+/* Each service card closes with its own booking link. The card becomes a
+   column and the link takes whatever height is left above it, so it sits on
+   the card's floor and a row of cards lines up however unevenly the copy runs.
+   The gap above it is the paragraph's own bottom margin, so the button never
+   sits flush against the text on the tallest card, where there is no slack. */
+.card{display:flex;flex-direction:column}
+.card>a:not(.card-book){margin-bottom:1.15rem}
+.card .card-book{align-self:flex-start;margin-top:auto}
