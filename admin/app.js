@@ -437,7 +437,8 @@ function renderEditor(id) {
 /* ---------- router ---------- */
 function route() {
   const hash = location.hash || '#/overview'
-  const editing = hash.match(/^#\/edit\/([a-z]+)$/)
+  // Page slugs may contain numbers and hyphens (for example, ndis-counselling).
+  const editing = hash.match(/^#\/edit\/([a-z0-9-]+)$/)
   const view = editing ? 'editor' : (VIEWS.find(item => item.hash === hash) || VIEWS[0]).id
   state.view = view
   if (editing) state.page = editing[1]
