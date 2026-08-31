@@ -5,6 +5,7 @@
 # gitignore-style basenames and match at any depth — plain "index.html" would
 # take out admin/index.html as well, and the console loses its front door.
 /index.html
+/my-services/
 /about/
 /approach/
 /contact/
