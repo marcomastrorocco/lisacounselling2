@@ -6,6 +6,7 @@
 # take out admin/index.html as well, and the console loses its front door.
 /index.html
 /my-services/
+/ndis-counselling/
 /about/
 /approach/
 /contact/

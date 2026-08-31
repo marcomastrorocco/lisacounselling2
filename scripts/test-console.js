@@ -152,12 +152,12 @@ async function main() {
 
   console.log('\nReading the site through the console')
   const pages = await call('GET', '/api/pages', {cookie})
-  check('/api/pages lists the seven pages', pages.status === 200 && pages.json.length === 7, pages.text.slice(0, 120))
+  check('/api/pages lists the eight pages', pages.status === 200 && pages.json.length === 8, pages.text.slice(0, 120))
   check('/admin/app.js is served once signed in', (await call('GET', '/admin/app.js', {cookie})).status === 200)
   const one = await call('GET', '/api/page?id=about', {cookie})
   check('/api/page returns the HTML', one.status === 200 && one.json.html.includes('<h1>About</h1>'), one.text.slice(0, 120))
   const stats = await call('GET', '/api/stats', {cookie})
-  check('/api/stats measures every page', stats.status === 200 && stats.json.length === 7, stats.text.slice(0, 120))
+  check('/api/stats measures every page', stats.status === 200 && stats.json.length === 8, stats.text.slice(0, 120))
   check('stats carry a word count', stats.status === 200 && stats.json[0].words > 0)
 
   console.log('\nEditing a page')
@@ -175,7 +175,7 @@ async function main() {
   check('it was added to the navigation', created.json.navAdded === true)
   check('it was added to the sitemap', created.json.sitemapAdded === true)
   check('the navigation really changed', (await store.readText(store.SHELL)).includes('<a href="/fees/">Fees and Rebates</a>'))
-  check('the new page is now listed', (await call('GET', '/api/pages', {cookie})).json.length === 8)
+  check('the new page is now listed', (await call('GET', '/api/pages', {cookie})).json.length === 9)
   const clash = await call('POST', '/api/page', {cookie, body: {label: 'Again', slug: 'fees'}})
   check('a duplicate address is refused', clash.status === 409, clash.text)
   const bad = await call('POST', '/api/page', {cookie, body: {label: 'Bad', slug: 'Not A Slug'}})
