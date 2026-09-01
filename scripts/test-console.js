@@ -169,6 +169,19 @@ async function main() {
   check('/api/stats measures every configured page', stats.status === 200 && stats.json.length === site.seedPages.length, stats.text.slice(0, 120))
   check('stats carry a word count', stats.status === 200 && stats.json[0].words > 0)
 
+  console.log('\nEvery managed page stays connected to its live route')
+  delete process.env.SPES_SERVE_STATIC
+  for (const page of site.seedPages) {
+    const before = await call('GET', `/api/page?id=${encodeURIComponent(page.id)}`, {cookie})
+    const marker = `dashboard-live-sync-${page.id}`
+    const changed = before.json.html.replace('</main>', `<p>${marker}</p></main>`)
+    const saved = await call('PUT', '/api/page', {cookie, body: {id: page.id, html: changed}})
+    const published = await call('GET', page.path)
+    check(`${page.label} dashboard save reaches ${page.path}`, saved.status === 200 && published.status === 200 && published.text.includes(marker), published.text.slice(0, 120))
+    await call('PUT', '/api/page', {cookie, body: {id: page.id, html: before.json.html}})
+  }
+  process.env.SPES_SERVE_STATIC = '1'
+
   console.log('\nEditing a page')
   const edited = '<!doctype html><html><head><title>About</title></head><body><main><h1>About Lisa</h1><p>New words.</p></main></body></html>'
   const save = await call('PUT', '/api/page', {cookie, body: {id: 'about', html: edited}})
