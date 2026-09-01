@@ -27,9 +27,34 @@ const htmlType = 'text/html; charset=utf-8'
 
 const localPage = page => fs.readFileSync(path.join(root, page.file), 'utf8')
 
+function currentNavigation(text) {
+  return text
+    .replace(/\/my-services\//g, '/services/')
+    .replace(/<a href="\/services\/">My Services<\/a>/g, '<a href="/services/">Services</a>')
+    .replace(/<a href="\/domestic-family-violence\/">Domestic (?:&amp;|&) Family Violence<\/a>/g, '')
+    .replace(/>Book an appointment<\/a>/g, '>Book an Appointment</a>')
+}
+
+function currentHome(existing) {
+  let next = currentNavigation(existing)
+  if (!next.includes('Private Counselling · NDIS Therapeutic Support · EAP Counselling')) {
+    const marker = '<section class="section surface"><div class="container about-teaser">'
+    const support = '<section class="section surface"><div class="container prose"><h2>Ways to Access Support</h2><p>Private Counselling · NDIS Therapeutic Support · EAP Counselling</p><p><a class="text-link" href="/services/">Explore Services →</a></p></div></section>\n'
+    if (next.includes(marker)) next = next.replace(marker, support + marker)
+  }
+  return next
+}
+
 async function ensurePage(page) {
   const existing = await store.readText(store.pageKey(page.id), {fresh: true})
   if (existing !== null) {
+    if (page.id === 'home') {
+      const next = currentHome(existing)
+      if (next !== existing) {
+        await store.writeText(store.pageKey(page.id), next, htmlType)
+        return 'updated Home navigation and support options; kept dashboard content'
+      }
+    }
     // This visible wording change keeps all other dashboard edits intact.
     if (page.id === 'services' && existing.includes('<h1>My Services</h1>')) {
       await store.writeText(store.pageKey(page.id), existing.replace('<h1>My Services</h1>', '<h1>Services</h1>'), htmlType)
@@ -44,11 +69,7 @@ async function ensurePage(page) {
 async function syncSharedDocuments() {
   const shell = await store.readText(store.SHELL, {fresh: true})
   if (shell !== null) {
-    const nextShell = shell
-      .replace(/<a href="\/my-services\/">My Services<\/a>/g, '<a href="/services/">Services</a>')
-      .replace(/<a href="\/services\/">My Services<\/a>/g, '<a href="/services/">Services</a>')
-      .replace(/<a href="\/domestic-family-violence\/">Domestic (?:&amp;|&) Family Violence<\/a>/g, '')
-      .replace(/>Book an appointment<\/a>/g, '>Book an Appointment</a>')
+    const nextShell = currentNavigation(shell)
     if (nextShell !== shell) {
       await store.writeText(store.SHELL, nextShell, 'text/javascript; charset=utf-8')
       console.log('Updated shared navigation and footer.')
