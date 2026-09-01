@@ -29,7 +29,14 @@ const localPage = page => fs.readFileSync(path.join(root, page.file), 'utf8')
 
 async function ensurePage(page) {
   const existing = await store.readText(store.pageKey(page.id), {fresh: true})
-  if (existing !== null) return 'kept existing dashboard content'
+  if (existing !== null) {
+    // This visible wording change keeps all other dashboard edits intact.
+    if (page.id === 'services' && existing.includes('<h1>My Services</h1>')) {
+      await store.writeText(store.pageKey(page.id), existing.replace('<h1>My Services</h1>', '<h1>Services</h1>'), htmlType)
+      return 'updated Services heading and kept dashboard content'
+    }
+    return 'kept existing dashboard content'
+  }
   await store.writeText(store.pageKey(page.id), localPage(page), htmlType)
   return 'copied current project page'
 }

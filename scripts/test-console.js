@@ -125,6 +125,15 @@ function check(label, condition, detail) {
 }
 
 async function main() {
+  console.log('\nDeployment packaging')
+  const vercelIgnore = require('fs').readFileSync(path.join(project, '.vercelignore'), 'utf8')
+  const ignored = new Set(vercelIgnore.split(/\r?\n/).map(line => line.trim()).filter(Boolean))
+  const exposedPages = site.seedPages.filter(page => {
+    const deployPath = page.file === 'index.html' ? '/index.html' : `/${page.file.split('/')[0]}/`
+    return !ignored.has(deployPath)
+  })
+  check('every dashboard-managed page bypasses Vercel static files', exposedPages.length === 0, exposedPages.map(page => page.path).join(', '))
+
   // Seed the store the way scripts/seed-blob.js does.
   await store.writeJson(store.PAGES, site.seedPages)
   for (const page of site.seedPages) {
