@@ -41,6 +41,15 @@ const remember = {
 const esc = value => String(value).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]))
 const bytes = n => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'
 
+/* Image paths belong to the page being edited, not to /admin/editor.html.
+   Resolve only the thumbnail URL; the stored HTML keeps its original relative
+   path so the published page remains unchanged. */
+function thumbnailUrl(value) {
+  if (!value) return ''
+  try { return new URL(value, new URL((page && page.path) || '/', location.origin)).href }
+  catch { return value }
+}
+
 /* ---------- the preview ----------
    The frame loads the page's own address, which is the only way the stylesheet,
    the shared header and footer, and every relative image path resolve as they
@@ -312,7 +321,7 @@ function imageField(section, index, img) {
   const thumb = document.createElement('img')
   thumb.className = 'preview'
   thumb.alt = ''
-  thumb.src = img.getAttribute('src') || ''
+  thumb.src = thumbnailUrl(img.getAttribute('src') || '')
   const source = document.createElement('input')
   source.value = img.getAttribute('src') || ''
 
@@ -320,7 +329,7 @@ function imageField(section, index, img) {
     setSource(img, value)
     const other = twinOf(img)
     if (other) setSource(other, value)
-    thumb.src = value
+    thumb.src = thumbnailUrl(value)
     markDirty()
   }
 
