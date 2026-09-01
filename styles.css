@@ -181,3 +181,4 @@ p{color:inherit}a,.crisis-band a{color:var(--color-navy)}
 .card{display:flex;flex-direction:column}
 .card>a:not(.card-book){margin-bottom:1.15rem}
 .card .card-book{align-self:flex-start;margin-top:auto}
+.access-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;margin-top:2.5rem}.access-options .card{display:flex;flex-direction:column}.access-options .button,.access-options .card>a:last-child{align-self:flex-start;margin-top:auto}

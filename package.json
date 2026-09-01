@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node local-server.js",
     "seed": "node scripts/seed-blob.js",
+    "sync:blob": "node scripts/sync-blob-pages.js",
     "test": "node scripts/test-console.js",
     "reset-password": "node scripts/reset-password.js"
   },
