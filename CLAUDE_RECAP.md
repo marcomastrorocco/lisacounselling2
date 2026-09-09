@@ -45,7 +45,7 @@ Preview: https://lisa-counselling.vercel.app/
 1. University name and Master of Counselling graduation year.
 2. Exact wording for any additional qualifications or professional training, copied from certificates; otherwise omit those lines.
 3. Approved professional portrait.
-4. Practice email, Halaxy booking URL, contact-form endpoint, ABN and final privacy-policy text.
+4. Practice email, contact-form endpoint, ABN and final privacy-policy text.
 5. Remove the seven pre-launch indexing guards and allow indexing only after all content is approved.
 
 ## Recommended Claude checks

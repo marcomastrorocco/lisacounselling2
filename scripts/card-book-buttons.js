@@ -1,5 +1,5 @@
-/* One-off: every service card on My Services closes with its own "Book here"
-   link to the contact page, and the single stray booking button under the grid
+/* One-off: every service card on My Services closes with its own "Get in touch"
+   link to the contact page, and the single stray contact button under the grid
    goes away.
 
    The card copy on disk and the card copy in Blob have drifted apart — Lisa has
@@ -26,7 +26,7 @@ loadEnv('.env.local'); loadEnv('.env')
 
 const store = require('../lib/store')
 
-const BUTTON = '<a class="button card-book" href="/contact/">Book here</a>'
+const BUTTON = '<a class="button card-book" href="/contact/">Get in touch</a>'
 
 function patch(html) {
   let count = 0
@@ -36,11 +36,10 @@ function patch(html) {
     count++
     return `<article class="card">${inner}${BUTTON}</article>`
   })
-  // The one booking button that used to stand under the whole grid, and the
+  // The one contact button that used to stand under the whole grid, and the
   // empty paragraph left behind beside it.
   const removed = []
   const strays = [
-    /<p class="prose"><a class="button" href="\{\{HALAXY_URL\}\}">Book an appointment<\/a><\/p>/g,
     /<p class="prose">\s*<\/p>/g,
   ]
   for (const pattern of strays) {

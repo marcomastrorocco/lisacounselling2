@@ -27,19 +27,22 @@ const htmlType = 'text/html; charset=utf-8'
 
 const localPage = page => fs.readFileSync(path.join(root, page.file), 'utf8')
 
+const removeLegacyBookingLinks = text => String(text)
+  .replace(/<a class="button" href="\{\{[^}]*\}\}"(?: hidden="")?>Book an [Aa]ppointment<\/a>/g, '')
+  .replace(/>Book\s+here<\/a>/g, '>Get in touch</a>')
+
 function currentNavigation(text) {
-  return text
+  return removeLegacyBookingLinks(text)
     .replace(/\/my-services\//g, '/services/')
     .replace(/<a href="\/services\/">My Services<\/a>/g, '<a href="/services/">Services</a>')
     .replace(/<a href="\/domestic-family-violence\/">Domestic (?:&amp;|&) Family Violence<\/a>/g, '')
-    .replace(/>Book an appointment<\/a>/g, '>Book an Appointment</a>')
 }
 
 function currentHome(existing) {
   let next = currentNavigation(existing)
   if (!next.includes('Private Counselling · NDIS Therapeutic Support · EAP Counselling')) {
     const marker = '<section class="section surface"><div class="container about-teaser">'
-    const support = '<section class="section surface"><div class="container prose"><h2>Ways to Access Support</h2><p>Private Counselling · NDIS Therapeutic Support · EAP Counselling</p><p><a class="text-link" href="/services/">Explore Services →</a></p></div></section>\n'
+    const support = '<section class="section surface access-support"><div class="container prose"><p>Private Counselling · NDIS Therapeutic Support · EAP Counselling</p><p><a class="button explore-services" href="/services/">Explore Services →</a></p></div></section>\n'
     if (next.includes(marker)) next = next.replace(marker, support + marker)
   }
   return next
@@ -48,12 +51,17 @@ function currentHome(existing) {
 async function ensurePage(page) {
   const existing = await store.readText(store.pageKey(page.id), {fresh: true})
   if (existing !== null) {
+    const cleaned = currentNavigation(existing)
     if (page.id === 'home') {
-      const next = currentHome(existing)
+      const next = currentHome(cleaned)
       if (next !== existing) {
         await store.writeText(store.pageKey(page.id), next, htmlType)
-        return 'updated Home navigation and support options; kept dashboard content'
+        return 'removed legacy booking links; kept dashboard content'
       }
+    }
+    if (cleaned !== existing) {
+      await store.writeText(store.pageKey(page.id), cleaned, htmlType)
+      return 'removed legacy booking links; kept dashboard content'
     }
     // This visible wording change keeps all other dashboard edits intact.
     if (page.id === 'services' && existing.includes('<h1>My Services</h1>')) {

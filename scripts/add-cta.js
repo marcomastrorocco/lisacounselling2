@@ -37,13 +37,6 @@ const LINK = '<a class="button" href="/contact/">Get in touch</a>'
 const band = ([heading, line]) =>
   `<section class="cta-band"><div class="container"><h2>${heading}</h2><p>${line}</p>${LINK}</div></section>`
 
-/* The home page's existing band gets the link beside the booking button. */
-function patchHome(html) {
-  const booking = /(<section class="cta-band">[\s\S]*?)(<a class="button" href="\{\{HALAXY_URL\}\}">Book an appointment<\/a>)([\s\S]*?<\/section>)/
-  if (!booking.test(html)) return null
-  return html.replace(booking, (m, before, button, after) =>
-    `${before}<div class="actions">${button}${LINK.replace('class="button"', 'class="button secondary"')}</div>${after}`)
-}
 
 async function main() {
   const write = process.argv.includes('--write')
@@ -62,7 +55,7 @@ async function main() {
     if (html.includes('href="/contact/">Get in touch')) { console.log(`  =    ${page.id.padEnd(10)} already has the CTA`); continue }
 
     let next
-    if (page.id === 'home') next = patchHome(html)
+    if (page.id === 'home') { console.log(`  -    ${page.id.padEnd(10)} skipped (it already has its CTA)`); continue }
     else if (page.id === 'contact') { console.log(`  -    ${page.id.padEnd(10)} skipped (it is the destination)`); continue }
     else if (COPY[page.id]) {
       if (!html.includes('</main>')) { console.log(`  !    ${page.id.padEnd(10)} no </main>, skipped`); continue }
