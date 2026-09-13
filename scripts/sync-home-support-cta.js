@@ -28,9 +28,12 @@ async function main() {
   const key = store.pageKey('home')
   const live = await store.readText(key, {fresh: true})
   if (live === null) throw new Error('Home page is missing from Blob')
-  if (!oldSection.test(live)) return console.log('Live home section is already current')
-  await store.writeText(key, live.replace(oldSection, replacement), 'text/html; charset=utf-8')
-  console.log('Live home support section updated')
+  const next = live
+    .replace(oldSection, replacement)
+    .replace(/\/shell\.js\?v=[^"']+/g, '/shell.js?v=nav-ndis-faq-2')
+  if (next === live) return console.log('Live home content is already current')
+  await store.writeText(key, next, 'text/html; charset=utf-8')
+  console.log('Live home support section and navigation cache version updated')
 }
 
 main().catch(error => { console.error(error.message); process.exit(1) })
