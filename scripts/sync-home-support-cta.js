@@ -28,8 +28,10 @@ async function main() {
   const key = store.pageKey('home')
   const live = await store.readText(key, {fresh: true})
   if (live === null) throw new Error('Home page is missing from Blob')
+  const sharedHeader = '<script src="/shell.js?v=nav-ndis-faq-2"></script><site-header></site-header>'
   const next = live
     .replace(oldSection, replacement)
+    .replace(/<header\b[\s\S]*?<\/header>/i, sharedHeader)
     .replace(/\/shell\.js\?v=[^"']+/g, '/shell.js?v=nav-ndis-faq-2')
   if (next === live) return console.log('Live home content is already current')
   await store.writeText(key, next, 'text/html; charset=utf-8')
