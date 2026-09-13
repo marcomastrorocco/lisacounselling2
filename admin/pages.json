@@ -25,6 +25,12 @@
     "path": "/ndis-counselling/"
   },
   {
+    "id": "ndis-enquiry",
+    "label": "NDIS enquiry",
+    "file": "ndis-enquiry/index.html",
+    "path": "/ndis-enquiry/"
+  },
+  {
     "id": "ndis-therapeutic-support",
     "label": "NDIS Therapeutic Support",
     "file": "ndis-therapeutic-support/index.html",

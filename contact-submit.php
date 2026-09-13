@@ -16,6 +16,10 @@ $name = trim((string) ($_POST['name'] ?? ''));
 $email = filter_var(trim((string) ($_POST['email'] ?? '')), FILTER_VALIDATE_EMAIL);
 $phone = trim((string) ($_POST['phone'] ?? ''));
 $message = trim((string) ($_POST['message'] ?? ''));
+$enquiryType = trim((string) ($_POST['enquiry_type'] ?? ''));
+$planManagement = trim((string) ($_POST['plan_management'] ?? ''));
+$enquiryFor = trim((string) ($_POST['enquiry_for'] ?? ''));
+$contactPreference = trim((string) ($_POST['contact_preference'] ?? ''));
 
 if ($name === '' || $email === false || $message === '') {
     header('Location: /contact/?error=1');
@@ -26,10 +30,17 @@ if ($name === '' || $email === false || $message === '') {
 $name = str_replace(["\r", "\n"], ' ', mb_substr($name, 0, 120));
 $phone = str_replace(["\r", "\n"], ' ', mb_substr($phone, 0, 60));
 $message = mb_substr($message, 0, 5000);
+$enquiryType = str_replace(["\r", "\n"], ' ', mb_substr($enquiryType, 0, 80));
+$planManagement = str_replace(["\r", "\n"], ' ', mb_substr($planManagement, 0, 80));
+$enquiryFor = str_replace(["\r", "\n"], ' ', mb_substr($enquiryFor, 0, 80));
+$contactPreference = str_replace(["\r", "\n"], ' ', mb_substr($contactPreference, 0, 80));
 
 $recipient = 'info@spescounselling.com.au';
-$subject = 'New SPES Counselling website enquiry';
-$body = "Name: {$name}\nEmail: {$email}\nPhone: {$phone}\n\nMessage:\n{$message}\n";
+$isNdis = $enquiryType === 'NDIS counselling enquiry';
+$subject = $isNdis ? 'New SPES Counselling NDIS enquiry' : 'New SPES Counselling website enquiry';
+$body = "Name: {$name}\nEmail: {$email}\nPhone: {$phone}\n";
+if ($isNdis) $body .= "Enquiry for: {$enquiryFor}\nPlan management: {$planManagement}\nPreferred contact: {$contactPreference}\n";
+$body .= "\nMessage:\n{$message}\n";
 $headers = [
     'From: SPES Counselling Website <info@spescounselling.com.au>',
     "Reply-To: {$email}",
@@ -37,5 +48,5 @@ $headers = [
 ];
 
 $sent = mail($recipient, $subject, $body, implode("\r\n", $headers));
-header('Location: /contact/?' . ($sent ? 'sent=1' : 'error=1'));
+header('Location: ' . ($isNdis ? '/ndis-counselling/' : '/contact/') . ($sent ? '?sent=1' : '?error=1'));
 exit;
