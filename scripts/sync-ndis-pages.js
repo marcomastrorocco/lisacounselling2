@@ -25,6 +25,8 @@ const store = require('../lib/store')
 const site = require('../lib/site')
 const type = 'text/html; charset=utf-8'
 const ids = ['services', 'contact', 'ndis-counselling', 'ndis-enquiry']
+const only = process.argv.find(argument => argument.startsWith('--only='))?.slice('--only='.length)
+const selectedIds = only ? new Set(only.split(',').filter(Boolean)) : new Set(ids)
 
 function disk(page) {
   return fs.readFileSync(path.join(root, page.file), 'utf8')
@@ -34,7 +36,7 @@ async function main() {
   if (!store.configured()) throw new Error('BLOB_READ_WRITE_TOKEN is not set.')
   const write = process.argv.includes('--write')
   const registry = await store.readJson(store.PAGES, [], {fresh: true})
-  const selected = site.seedPages.filter(page => ids.includes(page.id))
+  const selected = site.seedPages.filter(page => selectedIds.has(page.id))
   const nextRegistry = [...registry]
 
   for (const page of selected) {
@@ -50,12 +52,14 @@ async function main() {
   console.log(`${registryChanged ? (write ? '✓' : '→') : '='} Dashboard page registry${registryChanged ? ' will be synced' : ' already includes both NDIS pages'}`)
   if (write && registryChanged) await store.writeJson(store.PAGES, nextRegistry)
 
+  if (!only) {
   const localShell = fs.readFileSync(path.join(root, 'shell.js'), 'utf8')
   const remoteShell = await store.readText(store.SHELL, {fresh: true})
   const shellChanged = remoteShell !== localShell
   console.log(`${shellChanged ? (write ? '✓' : '→') : '='} Main navigation${shellChanged ? ' will be synced' : ' already matches'}`)
   if (write && shellChanged) await store.writeText(store.SHELL, localShell, 'text/javascript; charset=utf-8')
 
+  }
   console.log(write ? '\nNDIS release sync complete.' : '\nDry run only. After approval, run: npm run sync:ndis -- --write')
 }
 
