@@ -43,7 +43,7 @@ function patchDocument(html) {
   })
   // A Private Counselling card may use neutral button wording such as “Get in
   // touch”; it is still the booking action for that service. Limit this rule
-  // to that card so NDIS and EAP actions keep their own destinations.
+  // to that card so NDIS actions keep their own destination.
   next = next.replace(/<article\b[^>]*class=(['"])[^'"]*\bcard\b[^'"]*\1[^>]*>(?:(?!<article\b)[\s\S])*?<h[1-6][^>]*>\s*Private\s+Counselling\s*<\/h[1-6]>(?:(?!<article\b)[\s\S])*?<\/article>/gi, card =>
     card.replace(anchor, (whole, before, quote, href, after, text) => {
       if (href === BOOKING_URL) return whole

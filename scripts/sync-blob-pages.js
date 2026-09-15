@@ -36,13 +36,29 @@ function currentNavigation(text) {
     .replace(/\/my-services\//g, '/services/')
     .replace(/<a href="\/services\/">My Services<\/a>/g, '<a href="/services/">Services</a>')
     .replace(/<a href="\/domestic-family-violence\/">Domestic (?:&amp;|&) Family Violence<\/a>/g, '')
+    .replace(/<a href="\/faqs\/">FAQs<\/a>/g, '')
+    .replace(/\s*(?:Â·|·)\s*EAP Counselling/g, '')
+    .replace(/<article class="card"><h3>EAP Counselling<\/h3>[\s\S]*?<\/article>/g, '')
+}
+
+function currentShell(text) {
+  const next = currentNavigation(text)
+  if (next.includes('acknowledgement-flags.png')) return next
+  const acknowledgement = '<div class="container acknowledgement"><img src="${depth}assets/acknowledgement-flags.png" alt="Aboriginal and Torres Strait Islander flags"><p>SPES Counselling acknowledges the Traditional Custodians of the lands on which we live and work. We pay our respects to Elders past and present and recognise the continuing connection of Aboriginal and Torres Strait Islander peoples to land, waters, culture and community.</p></div>'
+  return next.replace('</div></section></footer>`}}customElements', `</div>${acknowledgement}</section></footer>\`}}customElements`)
+}
+
+function currentServices(text) {
+  return currentNavigation(text)
+    .replace('<section class="section"><div class="container"><div class="cards five">', '<section class="section" id="support-services"><div class="container"><div class="cards five">')
+    .replace(/(<article class="card"><h3>Private Counselling<\/h3>[\s\S]*?)<a class="button card-book" href="https:\/\/spes-counselling\.splose\.com\/online-booking\/fddbbaf0-a707-4491-876d-832740cfd837">Book an Appointment<\/a>(<\/article>)/, '$1<a class="button card-book" href="#support-services">Learn More</a>$2')
 }
 
 function currentHome(existing) {
   let next = currentNavigation(existing)
-  if (!next.includes('Private Counselling · NDIS Therapeutic Support · EAP Counselling')) {
+  if (!next.includes('Private Counselling · NDIS Therapeutic Support')) {
     const marker = '<section class="section surface"><div class="container about-teaser">'
-    const support = '<section class="section surface access-support"><div class="container prose"><p>Private Counselling · NDIS Therapeutic Support · EAP Counselling</p><p><a class="button explore-services" href="/services/">Explore Services →</a></p></div></section>\n'
+    const support = '<section class="section surface access-support"><div class="container prose"><p>Private Counselling · NDIS Therapeutic Support</p><p><a class="button explore-services" href="/services/">Explore Services →</a></p></div></section>\n'
     if (next.includes(marker)) next = next.replace(marker, support + marker)
   }
   return next
@@ -51,7 +67,7 @@ function currentHome(existing) {
 async function ensurePage(page) {
   const existing = await store.readText(store.pageKey(page.id), {fresh: true})
   if (existing !== null) {
-    const cleaned = currentNavigation(existing)
+    const cleaned = page.id === 'services' ? currentServices(existing) : currentNavigation(existing)
     if (page.id === 'home') {
       const next = currentHome(cleaned)
       if (next !== existing) {
@@ -77,7 +93,7 @@ async function ensurePage(page) {
 async function syncSharedDocuments() {
   const shell = await store.readText(store.SHELL, {fresh: true})
   if (shell !== null) {
-    const nextShell = currentNavigation(shell)
+    const nextShell = currentShell(shell)
     if (nextShell !== shell) {
       await store.writeText(store.SHELL, nextShell, 'text/javascript; charset=utf-8')
       console.log('Updated shared navigation and footer.')
@@ -87,7 +103,8 @@ async function syncSharedDocuments() {
   const sitemap = await store.readText(store.SITEMAP, {fresh: true})
   if (sitemap !== null) {
     let nextSitemap = sitemap.replace(/https:\/\/www\.spescounselling\.com\.au\/my-services\//g, 'https://www.spescounselling.com.au/services/')
-    for (const href of ['/ndis-therapeutic-support/', '/eap-counselling/']) {
+      .replace(/\s*<url><loc>https:\/\/www\.spescounselling\.com\.au\/eap-counselling\/<\/loc><\/url>/g, '')
+    for (const href of ['/ndis-therapeutic-support/']) {
       const entry = `  <url><loc>https://www.spescounselling.com.au${href}</loc></url>`
       if (!nextSitemap.includes(`<loc>https://www.spescounselling.com.au${href}</loc>`)) {
         nextSitemap = nextSitemap.replace('</urlset>', `${entry}\n</urlset>`)
@@ -121,9 +138,10 @@ async function main() {
   // Keep pages the client may have created in the dashboard. Only replace the
   // known, renamed Services record and add the missing built-in pages.
   const knownIds = new Set(site.seedPages.map(page => page.id))
+  const retiredPaths = new Set(['/eap-counselling/', '/faqs/'])
   const retained = current.filter(page =>
     page.id !== 'help' && page.path !== '/services/' && !knownIds.has(page.id) &&
-    !site.seedPages.some(item => item.path === page.path)
+    !retiredPaths.has(page.path) && !site.seedPages.some(item => item.path === page.path)
   )
   const next = [...site.seedPages.map(page => ({...page})), ...retained]
   await store.writeJson(store.PAGES, next)

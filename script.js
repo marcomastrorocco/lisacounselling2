@@ -11,3 +11,6 @@ document.querySelectorAll('.contact-form').forEach((contactForm)=>{
   if(contactStatus.get('sent')==='1')contactForm.insertAdjacentHTML('afterbegin','<p class="form-status success" role="status">Thank you. Your enquiry has been sent to SPES Counselling.</p>');
   if(contactStatus.get('error')==='1')contactForm.insertAdjacentHTML('afterbegin','<p class="form-status error" role="alert">Your enquiry could not be sent. Please email info@spescounselling.com.au directly.</p>');
 });
+
+const homeFooter=document.querySelector('.footer-main');
+if(homeFooter&&!homeFooter.querySelector('.acknowledgement'))homeFooter.insertAdjacentHTML('beforeend','<div class="container acknowledgement"><img src="assets/acknowledgement-flags.png" alt="Aboriginal and Torres Strait Islander flags"><p>SPES Counselling acknowledges the Traditional Custodians of the lands on which we live and work. We pay our respects to Elders past and present and recognise the continuing connection of Aboriginal and Torres Strait Islander peoples to land, waters, culture and community.</p></div>');
